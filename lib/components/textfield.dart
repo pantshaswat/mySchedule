@@ -5,7 +5,7 @@ SuffixIconButton({IconData? icon, Function? onTap}) {
     onTap: onTap as void Function()?,
     child: Icon(
       icon,
-      color: Colors.grey,
+      color: const Color.fromARGB(255, 255, 255, 255),
     ),
   );
 }
@@ -16,16 +16,14 @@ Container reusableTextField(String text, IconData icon, bool isPasswordType,
   return Container(
     margin: EdgeInsets.only(left: 10, right: 10),
     decoration: BoxDecoration(
-      gradient: LinearGradient(
-        colors: [
-          Color.fromARGB(255, 204, 215, 224),
-          Color.fromARGB(255, 57, 148, 222),
-        ],
-      ),
+      color: Color.fromARGB(155, 236, 182, 246),
+      border: Border.all(color: Colors.grey),
       borderRadius: BorderRadius.circular(30.0),
     ),
     // padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
     child: TextField(
+      style: TextStyle(color: Colors.white),
+      cursorColor: Colors.white,
       obscuringCharacter: '*',
       controller: controller,
       obscureText: isPasswordType,
@@ -37,7 +35,7 @@ Container reusableTextField(String text, IconData icon, bool isPasswordType,
               }),
           prefixIcon: Icon(
             icon,
-            color: Colors.grey,
+            color: Colors.white,
           ),
           hintText: text,
           filled: true,
@@ -57,12 +55,8 @@ Container elevatedButtons(
     height: height,
     width: width,
     decoration: BoxDecoration(
-      gradient: LinearGradient(
-        colors: [
-          Color.fromARGB(255, 53, 36, 103),
-          Color.fromARGB(255, 51, 124, 234),
-        ],
-      ),
+      color: Colors.deepPurple[500],
+      border: Border.all(color: Colors.grey),
       borderRadius: BorderRadius.circular(30.0),
     ),
     child: ElevatedButton(
