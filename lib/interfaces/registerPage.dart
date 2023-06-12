@@ -19,6 +19,7 @@ class _registerPageState extends State<registerPage> {
     } else if (!isPassShown) {
       return Icons.no_adult_content;
     }
+    return null;
   }
 
   @override
@@ -27,104 +28,105 @@ class _registerPageState extends State<registerPage> {
     var w = MediaQuery.of(context).size.width;
     return Scaffold(
       body: SingleChildScrollView(
-        child: SafeArea(
-          child: Stack(
-            children: [
-              Container(
-                height: h,
-                width: w,
-                color: Colors.deepPurple,
-              ),
-              Center(
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: AssetImage(
-                        "assets/images/image.png",
-                      ),
+        child: Container(
+          height: h,
+          decoration: BoxDecoration(
+            color: Colors.deepPurple,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: AssetImage(
+                      "assets/images/image.png",
                     ),
-                    Text(
-                      "Register!",
-                      style: TextStyle(
-                          fontFamily: 'mainFont',
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
-                    ),
-                    const SizedBox(height: 15),
-                    reusableTextField(
-                      "Enter your First Name",
-                      Icons.person_2_outlined,
-                      false,
-                      emailController,
-                    ),
+                  ),
+                  Text(
+                    "Register!",
+                    style: TextStyle(
+                        fontFamily: 'mainFont',
+                        fontSize: 50,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                  const SizedBox(height: 15),
+                  reusableTextField(
+                    "Enter your First Name",
+                    Icons.person_2_outlined,
+                    false,
+                    emailController,
+                  ),
 
-                    const SizedBox(height: 8),
-                    reusableTextField(
-                      "Enter your Last Name",
-                      Icons.person_2_outlined,
-                      false,
-                      emailController,
-                    ),
+                  const SizedBox(height: 8),
+                  reusableTextField(
+                    "Enter your Last Name",
+                    Icons.person_2_outlined,
+                    false,
+                    emailController,
+                  ),
 
-                    const SizedBox(height: 8),
-                    reusableTextField(
-                      "Enter your Email",
-                      Icons.email,
-                      false,
-                      emailController,
-                    ),
-                    //pass
-                    const SizedBox(height: 8),
-                    reusableTextField("Enter your Password", Icons.lock_outline,
-                        isPassShown, passwordController, suffixIcon: passIcon(),
-                        onTap: () {
-                      setState(() {
-                        isPassShown = !isPassShown;
-                      });
-                    }),
-                    const SizedBox(height: 8),
-                    reusableTextField("Confirm your Password",
-                        Icons.lock_outline, isPassShown, passwordController,
-                        suffixIcon: passIcon(), onTap: () {
-                      setState(() {
-                        isPassShown = !isPassShown;
-                      });
-                    }),
-                    const SizedBox(height: 15),
-                    elevatedButtons(() {}, "Login", 50, w * 0.9),
-                    const SizedBox(height: 15),
-                    Row(
-                      children: [
-                        myDivider(),
-                        const Text('Already a member?',
-                            style: TextStyle(
-                                fontSize: 15,
+                  const SizedBox(height: 8),
+                  reusableTextField(
+                    "Enter your Email",
+                    Icons.email,
+                    false,
+                    emailController,
+                  ),
+                  //pass
+                  const SizedBox(height: 8),
+                  reusableTextField("Enter your Password", Icons.lock_outline,
+                      isPassShown, passwordController, suffixIcon: passIcon(),
+                      onTap: () {
+                    setState(() {
+                      isPassShown = !isPassShown;
+                    });
+                  }),
+                  const SizedBox(height: 8),
+                  reusableTextField("Confirm your Password", Icons.lock_outline,
+                      isPassShown, passwordController, suffixIcon: passIcon(),
+                      onTap: () {
+                    setState(() {
+                      isPassShown = !isPassShown;
+                    });
+                  }),
+                  const SizedBox(height: 15),
+                  elevatedButtons(() {}, "Login", 50, w * 0.9),
+                  const SizedBox(height: 15),
+                  Row(
+                    children: [
+                      myDivider(),
+                      const Text('Already a member?',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontFamily: 'mainFont',
+                              color: Colors.white)),
+                      myDivider(),
+                    ],
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Login Now",
+                              style: TextStyle(
                                 fontFamily: 'mainFont',
-                                color: Colors.white)),
-                        myDivider(),
-                      ],
-                    ),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text("Login Now",
-                                style: TextStyle(
-                                  fontFamily: 'mainFont',
-                                  color: Colors.white,
-                                ))),
-                      ],
-                    )
-                  ],
-                ),
-              )
-            ],
+                                color: Colors.white,
+                              ))),
+                    ],
+                  )
+                ],
+              ),
+            ),
           ),
         ),
       ),
