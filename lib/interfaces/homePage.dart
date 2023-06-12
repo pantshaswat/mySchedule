@@ -1,6 +1,8 @@
 // Copyright 2019 Aleksander Woźniak
 // SPDX-License-Identifier: Apache-2.0
 
+// ignore_for_file: sort_child_properties_last, prefer_const_constructors
+
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
@@ -235,18 +237,43 @@ class _homePageState extends State<homePage> {
                   return ListView.builder(
                     itemCount: value.length,
                     itemBuilder: (context, index) {
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 12.0,
-                          vertical: 4.0,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(),
-                          borderRadius: BorderRadius.circular(12.0),
-                        ),
-                        child: ListTile(
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: InkWell(
+                          child: Container(
+                            padding: EdgeInsets.all(15.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '${value[index]}',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  child: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        value.removeAt(index);
+                                      });
+                                    },
+                                    icon: Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(),
+                              borderRadius: BorderRadius.circular(12.0),
+                              color: Colors.deepPurple,
+                            ),
+                          ),
                           onTap: () => print('${value[index]}'),
-                          title: Text('${value[index]}'),
                         ),
                       );
                     },
