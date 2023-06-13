@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myschedule/components/utils.dart';
 
 import '../components/textfield.dart';
 
@@ -17,12 +18,83 @@ class _toDoPageState extends State<toDoPage> {
   @override
   void initState() {
     super.initState();
+    weekDay();
+    month();
   }
 
   @override
   void dispose() {
     _textEditingController.dispose();
     super.dispose();
+  }
+
+  var weekDayName;
+  void weekDay() {
+    int day = DateTime.now().weekday;
+    print(day);
+    if (day == 1) {
+      weekDayName = 'Monday';
+    }
+    if (day == 2) {
+      weekDayName = 'Tuesday';
+    }
+    if (day == 3) {
+      weekDayName = 'Wednesday';
+    }
+    if (day == 4) {
+      weekDayName = 'Thursday';
+    }
+    if (day == 5) {
+      weekDayName = 'Friday';
+    }
+    if (day == 6) {
+      weekDayName = 'Saturday';
+    }
+    if (day == 7) {
+      weekDayName = 'Sunday';
+    }
+  }
+
+  var monthName;
+  void month() {
+    int monthNum = DateTime.now().month;
+
+    if (monthNum == 1) {
+      monthName = 'January';
+    }
+    if (monthNum == 2) {
+      monthName = 'February';
+    }
+    if (monthNum == 3) {
+      monthName = 'March';
+    }
+    if (monthNum == 4) {
+      monthName = 'April';
+    }
+    if (monthNum == 5) {
+      monthName = 'May';
+    }
+    if (monthNum == 6) {
+      monthName = 'June';
+    }
+    if (monthNum == 7) {
+      monthName = 'July';
+    }
+    if (monthNum == 8) {
+      monthName = 'August';
+    }
+    if (monthNum == 9) {
+      monthName = 'September';
+    }
+    if (monthNum == 10) {
+      monthName = 'October';
+    }
+    if (monthNum == 11) {
+      monthName = 'November';
+    }
+    if (monthNum == 12) {
+      monthName = 'December';
+    }
   }
 
   @override
@@ -53,7 +125,7 @@ class _toDoPageState extends State<toDoPage> {
                                 color: Colors.white),
                           ),
                           Text(
-                            "Monday, 13 June",
+                            "$weekDayName ,${DateTime.now().day} $monthName ",
                             style: TextStyle(
                                 fontFamily: 'mainFont',
                                 color: Colors.white,
@@ -63,7 +135,7 @@ class _toDoPageState extends State<toDoPage> {
                       ),
                       Spacer(),
                       IconButton(
-                          onPressed: () {},
+                          onPressed: calenderPicker,
                           icon: Icon(
                             Icons.calendar_month,
                             color: Colors.white,
@@ -198,6 +270,18 @@ class _toDoPageState extends State<toDoPage> {
         ]),
       )),
     );
+  }
+
+  void calenderPicker() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return DatePickerDialog(
+            initialDate: DateTime.now(),
+            firstDate: kFirstDay,
+            lastDate: kLastDay,
+          );
+        });
   }
 
 //function to add new list
