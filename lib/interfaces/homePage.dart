@@ -180,6 +180,7 @@ class _homePageState extends State<homePage> {
     return Scaffold(
       drawer: drawerPage(),
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
         title: Text(
