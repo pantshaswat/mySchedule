@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myschedule/components/utils.dart';
 
-import '../components/textfield.dart';
-
 class toDoPage extends StatefulWidget {
   const toDoPage({super.key});
 
@@ -18,6 +16,8 @@ class _toDoPageState extends State<toDoPage> {
   @override
   void initState() {
     super.initState();
+    weekDay();
+    month();
     weekDay();
     month();
   }
