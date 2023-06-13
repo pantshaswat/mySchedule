@@ -3,6 +3,7 @@ import 'package:myschedule/interfaces/event.dart';
 import 'package:myschedule/interfaces/homePage.dart';
 import 'package:myschedule/interfaces/loginPage.dart';
 import 'package:myschedule/interfaces/registerPage.dart';
+import 'package:myschedule/interfaces/toDo.dart';
 import 'package:myschedule/interfaces/welcomePage.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: loginpage(),
+      home: toDoPage(),
     );
   }
 }
