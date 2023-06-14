@@ -348,23 +348,6 @@ class _toDoPageState extends State<toDoPage> {
     );
   }
 
-  void calenderPicker() async {
-    final TimeOfDay? selectedTime =
-        await showTimePicker(context: context, initialTime: TimeOfDay.now());
-
-    final DateTime? selectedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: kFirstDay,
-      lastDate: kLastDay,
-    );
-
-    if (selectedDate != null) {
-      _selectedDate = selectedDate;
-      print('Selected date: ${selectedDate.weekday}');
-    }
-  }
-
 //function to add new list
   void addToDo() {
     showDialog(
@@ -469,18 +452,6 @@ class _toDoPageState extends State<toDoPage> {
               child:
                   const Text('Cancel', style: TextStyle(color: Colors.black)),
             ),
-            IconButton(
-                onPressed: calenderPicker,
-                icon: const Icon(
-                  Icons.calendar_month,
-                  color: Colors.black,
-                )),
-            IconButton(
-                onPressed: calenderPicker,
-                icon: const Icon(
-                  Icons.watch_later_outlined,
-                  color: Colors.black,
-                )),
           ],
         );
       },
