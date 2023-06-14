@@ -173,12 +173,6 @@ class _toDoPageState extends State<toDoPage> {
             ),
             const Spacer(),
             IconButton(
-                onPressed: calenderPicker,
-                icon: const Icon(
-                  Icons.calendar_month,
-                  color: Colors.white,
-                )),
-            IconButton(
                 onPressed: addToDo,
                 icon: const Icon(
                   Icons.add,
@@ -339,16 +333,22 @@ class _toDoPageState extends State<toDoPage> {
     );
   }
 
-  void calenderPicker() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DatePickerDialog(
-            initialDate: DateTime.now(),
-            firstDate: kFirstDay,
-            lastDate: kLastDay,
-          );
-        });
+  DateTime? _selectedDate;
+  void calenderPicker() async {
+    final TimeOfDay? selectedTime =
+        await showTimePicker(context: context, initialTime: TimeOfDay.now());
+
+    final DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: kFirstDay,
+      lastDate: kLastDay,
+    );
+
+    if (selectedDate != null) {
+      _selectedDate = selectedDate;
+      print('Selected date: ${selectedDate.weekday}');
+    }
   }
 
 //function to add new list
@@ -364,7 +364,7 @@ class _toDoPageState extends State<toDoPage> {
               editedToDo = value;
             },
             decoration: const InputDecoration(
-              labelText: 'Add Here',
+              labelText: 'Write your ToDo',
             ),
           ),
           actions: [
@@ -385,14 +385,30 @@ class _toDoPageState extends State<toDoPage> {
                   Navigator.of(context).pop(); // Close the dialog
                 }
               },
-              child: const Text('Add'),
+              child: const Text(
+                'Add',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: const Text('Cancel'),
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.black)),
             ),
+            IconButton(
+                onPressed: calenderPicker,
+                icon: const Icon(
+                  Icons.calendar_month,
+                  color: Colors.black,
+                )),
+            IconButton(
+                onPressed: calenderPicker,
+                icon: const Icon(
+                  Icons.watch_later_outlined,
+                  color: Colors.black,
+                )),
           ],
         );
       },
