@@ -190,9 +190,6 @@ class _toDoPageState extends State<toDoPage> {
       body: Container(
           color: Colors.deepPurple,
           child: SingleChildScrollView(
-
-
-
             child: SizedBox(
               height: h,
               child: Padding(
@@ -206,6 +203,7 @@ class _toDoPageState extends State<toDoPage> {
                         child: ListView.builder(
                             itemCount: toDoWork.length,
                             itemBuilder: ((context, index) {
+                              int reversedIndex = toDoWork.length - 1 - index;
                               //function to edit the list
                               void editToDo() {
                                 showDialog(
@@ -227,7 +225,7 @@ class _toDoPageState extends State<toDoPage> {
                                           onPressed: () {
                                             if (editedToDo.isNotEmpty) {
                                               //first removing the value at index
-                                              toDoWork.removeAt(index);
+                                              toDoWork.removeAt(reversedIndex);
                                               //then inserting the new value at the same index
                                               String id = uuid.v1();
                                               ToDoItem newTodo = ToDoItem(
@@ -240,7 +238,7 @@ class _toDoPageState extends State<toDoPage> {
                                                 newTodo.isChecked.toString()
                                               ]);
                                               toDoWork.insert(
-                                                index,
+                                                reversedIndex,
                                                 ToDoItem(
                                                   toDoText: editedToDo,
                                                   isChecked: false,
@@ -256,7 +254,6 @@ class _toDoPageState extends State<toDoPage> {
                                         ),
                                         TextButton(
                                           onPressed: () {
-
                                             Navigator.of(context)
                                                 .pop(); // Close the dialog
                                           },
@@ -268,11 +265,10 @@ class _toDoPageState extends State<toDoPage> {
                                 );
                               }
 
-
-
-
                               return Opacity(
-                                opacity: toDoWork[index].isChecked ? 0.5 : 1.0,
+                                opacity: toDoWork[reversedIndex].isChecked
+                                    ? 0.5
+                                    : 1.0,
                                 child: Container(
                                   decoration: BoxDecoration(
                                     border: Border.all(color: Colors.black),
@@ -281,26 +277,22 @@ class _toDoPageState extends State<toDoPage> {
                                       236,
                                       182,
                                       246,
-
                                     ),
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
-
-
-
                                   child: ListTile(
                                     leading: Checkbox(
                                       activeColor: Colors.deepPurple,
-                                      value: toDoWork[index].isChecked,
+                                      value: toDoWork[reversedIndex].isChecked,
                                       onChanged: (bool? value) {
                                         setState(() {
-                                          toDoWork[index].isChecked =
+                                          toDoWork[reversedIndex].isChecked =
                                               value ?? false;
                                         });
                                       },
                                     ),
                                     title: Text(
-                                      toDoWork[index].toDoText,
+                                      toDoWork[reversedIndex].toDoText,
                                       style: const TextStyle(
                                         fontFamily: 'mainFont',
                                         fontSize: 15,
@@ -321,9 +313,11 @@ class _toDoPageState extends State<toDoPage> {
                                               )),
                                           IconButton(
                                               onPressed: () {
-                                                _removeItem(toDoWork[index].ID);
+                                                _removeItem(
+                                                    toDoWork[reversedIndex].ID);
                                                 setState(() {
-                                                  toDoWork.removeAt(index);
+                                                  toDoWork
+                                                      .removeAt(reversedIndex);
                                                 });
                                               },
                                               icon: const Icon(
@@ -332,7 +326,6 @@ class _toDoPageState extends State<toDoPage> {
                                               )),
                                         ],
                                       ),
-
                                     ),
                                   ),
                                 ),
