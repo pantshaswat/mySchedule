@@ -36,7 +36,6 @@ class _loginpageState extends State<loginpage> {
           height: h,
           decoration: BoxDecoration(
             color: Colors.deepPurple,
-            borderRadius: BorderRadius.circular(20),
           ),
           child: Padding(
             padding: const EdgeInsets.all(10.0),
