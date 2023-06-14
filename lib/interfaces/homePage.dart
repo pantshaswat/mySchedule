@@ -20,6 +20,7 @@ class homePage extends StatefulWidget {
 class _homePageState extends State<homePage> {
   late final ValueNotifier<List<Event>> _selectedEvents;
   final ValueNotifier<DateTime> _focusedDay = ValueNotifier(DateTime.now());
+  final TextEditingController _eventTitleController = TextEditingController();
   final Set<DateTime> _selectedDays = LinkedHashSet<DateTime>(
     equals: isSameDay,
     hashCode: getHashCode,
@@ -39,6 +40,7 @@ class _homePageState extends State<homePage> {
         return AlertDialog(
           title: Text('Add Event'),
           content: TextField(
+            controller: _eventTitleController,
             onChanged: (value) {
               eventTitle = value;
             },
@@ -49,26 +51,55 @@ class _homePageState extends State<homePage> {
           actions: [
             TextButton(
               onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.red[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
                 if (eventTitle.isNotEmpty) {
+                  String? addEvent = _eventTitleController.text;
                   // Create a new Event object
-                  Event newEvent = Event(eventTitle);
+                  Event newEvent = Event(addEvent);
 
                   // Add the event to the selected day
                   _selectedEvents.value.add(newEvent);
 
                   // Update the list of events for the selected days
                   _selectedEvents.value = _getEventsForDays(_selectedDays);
-
+                  _eventTitleController.clear();
+                  print(addEvent);
                   Navigator.of(context).pop(); // Close the dialog
+                  setState(() {});
                 }
               },
-              child: Text('Add'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: Text('Cancel'),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Add',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
             ),
           ],
         );
@@ -149,6 +180,7 @@ class _homePageState extends State<homePage> {
     return Scaffold(
       drawer: drawerPage(),
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
         title: Text(
