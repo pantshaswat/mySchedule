@@ -12,9 +12,9 @@ class _drawerPageState extends State<drawerPage> {
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         children: [
-          UserAccountsDrawerHeader(
+          const UserAccountsDrawerHeader(
             accountName: Text("Name"),
             decoration: BoxDecoration(
                 gradient: LinearGradient(colors: [
@@ -24,28 +24,28 @@ class _drawerPageState extends State<drawerPage> {
             accountEmail: Text("Email"),
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
-              child: const Icon(
+              child: Icon(
                 Icons.person,
                 color: Colors.black,
                 size: 40,
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           ListTile(
-            leading: Icon(Icons.home),
+            leading: const Icon(Icons.home),
             title: const Text('Home'),
             onTap: () {
               Navigator.pop(context);
             },
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           ListTile(
-            leading: Icon(Icons.info),
+            leading: const Icon(Icons.info),
             title: const Text('Personal Information'),
             onTap: () {
               Navigator.pop(context);
@@ -53,11 +53,11 @@ class _drawerPageState extends State<drawerPage> {
               // Implement your personal information logic here
             },
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           ListTile(
-            leading: Icon(Icons.lock),
+            leading: const Icon(Icons.lock),
             title: const Text('Change Password'),
             onTap: () {
               Navigator.pop(context);
@@ -65,27 +65,27 @@ class _drawerPageState extends State<drawerPage> {
               // Implement your change password logic here
             },
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
-          ListTile(
+          const ListTile(
             leading: Icon(Icons.attach_money_rounded),
-            title: const Text('Fare Calculator'),
+            title: Text('Fare Calculator'),
           ),
-          ListTile(
+          const ListTile(
             leading: Icon(Icons.info),
-            title: const Text('About'),
+            title: Text('About'),
           ),
-          ListTile(
+          const ListTile(
             leading: Icon(Icons.question_mark),
-            title: const Text('Help'),
+            title: Text('Help'),
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
-          ListTile(
+          const ListTile(
             leading: Icon(Icons.logout),
-            title: const Text('Logout'),
+            title: Text('Logout'),
           ),
         ],
       ),

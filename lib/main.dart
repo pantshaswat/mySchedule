@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:myschedule/interfaces/event.dart';
-import 'package:myschedule/interfaces/homePage.dart';
-import 'package:myschedule/interfaces/loginPage.dart';
-import 'package:myschedule/interfaces/registerPage.dart';
 import 'package:myschedule/interfaces/toDo.dart';
-import 'package:myschedule/interfaces/welcomePage.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() {
-  initializeDateFormatting().then((_) => runApp(MyApp()));
+  initializeDateFormatting().then((_) => runApp(const MyApp()));
 
   //runApp(const MyApp());
 }
@@ -18,7 +13,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
       home: toDoPage(),
     );
