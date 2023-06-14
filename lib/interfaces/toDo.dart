@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myschedule/components/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import "package:uuid/uuid.dart";
 
 class toDoPage extends StatefulWidget {
   const toDoPage({super.key});
@@ -9,13 +11,54 @@ class toDoPage extends StatefulWidget {
 }
 
 class _toDoPageState extends State<toDoPage> {
+  //Initializing the list of to-do items from the shared_preferences
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  Future<void> _setItems(String key, List<String> OtherItems) async {
+    final SharedPreferences prefs = await _prefs;
+    prefs
+        .setStringList(
+          key,
+          OtherItems,
+        )
+        .then((value) => print(value));
+  }
+
+  Future<void> _getItems(String key) async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.getStringList(key);
+  }
+
+  Future<void> _removeItem(String key) async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.remove(key);
+  }
+
+  Future<void> _removeAllItems() async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.clear();
+  }
+
+  Future<void> _getAllItems() async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.getKeys().forEach((key) {
+      print(prefs.getStringList(key)![0]);
+      ToDoItem newItem = ToDoItem(
+          toDoText: prefs.getStringList(key)![1],
+          isChecked: convertToBoolean(prefs.getStringList(key)![2]),
+          ID: key);
+      toDoWork.add(newItem);
+      setState(() {});
+    });
+  }
+
   //ToDoItem class is at bottom
   List<ToDoItem> toDoWork = [];
-  TextEditingController _textEditingController = TextEditingController();
+  final TextEditingController _textEditingController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _getAllItems();
     weekDay();
     month();
     weekDay();
@@ -31,7 +74,6 @@ class _toDoPageState extends State<toDoPage> {
   var weekDayName;
   void weekDay() {
     int day = DateTime.now().weekday;
-    print(day);
     if (day == 1) {
       weekDayName = 'Monday';
     }
@@ -97,6 +139,8 @@ class _toDoPageState extends State<toDoPage> {
     }
   }
 
+//Initialing a unique key to assign each to-do item
+  var uuid = Uuid();
   @override
   Widget build(BuildContext context) {
     var h = MediaQuery.of(context).size.height;
@@ -110,7 +154,7 @@ class _toDoPageState extends State<toDoPage> {
           children: [
             Column(
               children: [
-                Text(
+                const Text(
                   "Today",
                   style: TextStyle(
                       fontFamily: 'mainFont',
@@ -120,23 +164,23 @@ class _toDoPageState extends State<toDoPage> {
                 ),
                 Text(
                   "$weekDayName ,${DateTime.now().day} $monthName ",
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontFamily: 'mainFont',
                       color: Colors.white,
                       fontSize: 16),
                 )
               ],
             ),
-            Spacer(),
+            const Spacer(),
             IconButton(
                 onPressed: calenderPicker,
-                icon: Icon(
+                icon: const Icon(
                   Icons.calendar_month,
                   color: Colors.white,
                 )),
             IconButton(
                 onPressed: addToDo,
-                icon: Icon(
+                icon: const Icon(
                   Icons.add,
                   color: Colors.white,
                 ))
@@ -156,7 +200,7 @@ class _toDoPageState extends State<toDoPage> {
                     const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20),
                 child: Column(
                   children: [
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     //listview builder for todo list
                     Expanded(
                         child: ListView.builder(
@@ -169,12 +213,12 @@ class _toDoPageState extends State<toDoPage> {
                                   builder: (BuildContext context) {
                                     String editedToDo = '';
                                     return AlertDialog(
-                                      title: Text('Edit ToDo'),
+                                      title: const Text('Edit ToDo'),
                                       content: TextField(
                                         onChanged: (value) {
                                           editedToDo = value;
                                         },
-                                        decoration: InputDecoration(
+                                        decoration: const InputDecoration(
                                           labelText: 'Edit Here',
                                         ),
                                       ),
@@ -185,17 +229,30 @@ class _toDoPageState extends State<toDoPage> {
                                               //first removing the value at index
                                               toDoWork.removeAt(index);
                                               //then inserting the new value at the same index
+                                              String id = uuid.v1();
+                                              ToDoItem newTodo = ToDoItem(
+                                                  toDoText: editedToDo,
+                                                  isChecked: false,
+                                                  ID: id);
+                                              _setItems(id, [
+                                                newTodo.ID,
+                                                newTodo.toDoText,
+                                                newTodo.isChecked.toString()
+                                              ]);
                                               toDoWork.insert(
-                                                  index,
-                                                  ToDoItem(
-                                                      toDoText: editedToDo,
-                                                      isChecked: false));
+                                                index,
+                                                ToDoItem(
+                                                  toDoText: editedToDo,
+                                                  isChecked: false,
+                                                  ID: id,
+                                                ),
+                                              );
                                               print(toDoWork);
                                               Navigator.of(context)
                                                   .pop(); // Close the dialog
                                             }
                                           },
-                                          child: Text('Add'),
+                                          child: const Text('Add'),
                                         ),
                                         TextButton(
                                           onPressed: () {
@@ -203,7 +260,7 @@ class _toDoPageState extends State<toDoPage> {
                                             Navigator.of(context)
                                                 .pop(); // Close the dialog
                                           },
-                                          child: Text('Cancel'),
+                                          child: const Text('Cancel'),
                                         ),
                                       ],
                                     );
@@ -219,7 +276,7 @@ class _toDoPageState extends State<toDoPage> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     border: Border.all(color: Colors.black),
-                                    color: Color.fromARGB(
+                                    color: const Color.fromARGB(
                                       155,
                                       236,
                                       182,
@@ -244,31 +301,32 @@ class _toDoPageState extends State<toDoPage> {
                                     ),
                                     title: Text(
                                       toDoWork[index].toDoText,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontFamily: 'mainFont',
                                         fontSize: 15,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    subtitle: Text('Wednesday, 9 AM'),
-                                    trailing: Container(
+                                    subtitle: const Text('Wednesday, 9 AM'),
+                                    trailing: SizedBox(
                                       height: 50,
                                       width: 100,
                                       child: Row(
                                         children: [
                                           IconButton(
                                               onPressed: editToDo,
-                                              icon: Icon(
+                                              icon: const Icon(
                                                 Icons.edit,
                                                 color: Colors.deepPurple,
                                               )),
                                           IconButton(
                                               onPressed: () {
+                                                _removeItem(toDoWork[index].ID);
                                                 setState(() {
                                                   toDoWork.removeAt(index);
                                                 });
                                               },
-                                              icon: Icon(
+                                              icon: const Icon(
                                                 Icons.delete,
                                                 color: Colors.deepPurple,
                                               )),
@@ -307,37 +365,53 @@ class _toDoPageState extends State<toDoPage> {
       builder: (BuildContext context) {
         String editedToDo = '';
         return AlertDialog(
-          title: Text('Add ToDo'),
+          title: const Text('Add ToDo'),
           content: TextField(
             onChanged: (value) {
               editedToDo = value;
             },
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Add Here',
             ),
           ),
           actions: [
             TextButton(
               onPressed: () {
+                String id = uuid.v1();
                 if (editedToDo.isNotEmpty) {
-                  toDoWork
-                      .add(ToDoItem(toDoText: editedToDo, isChecked: false));
+                  toDoWork.add(
+                      ToDoItem(toDoText: editedToDo, isChecked: false, ID: id));
+                  ToDoItem newTodo =
+                      ToDoItem(toDoText: editedToDo, isChecked: false, ID: id);
+                  _setItems(id, [
+                    newTodo.ID,
+                    newTodo.toDoText,
+                    newTodo.isChecked.toString()
+                  ]);
                   setState(() {});
                   Navigator.of(context).pop(); // Close the dialog
                 }
               },
-              child: Text('Add'),
+              child: const Text('Add'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
           ],
         );
       },
     );
+  }
+
+  convertToBoolean(param0) {
+    if (param0 == 'true') {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
@@ -347,6 +421,6 @@ class _toDoPageState extends State<toDoPage> {
 class ToDoItem {
   String toDoText;
   bool isChecked;
-
-  ToDoItem({required this.toDoText, required this.isChecked});
+  String ID;
+  ToDoItem({required this.toDoText, required this.isChecked, required this.ID});
 }

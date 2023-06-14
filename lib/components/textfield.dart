@@ -14,15 +14,15 @@ Container reusableTextField(String text, IconData icon, bool isPasswordType,
     TextEditingController controller,
     {IconData? suffixIcon, onTap}) {
   return Container(
-    margin: EdgeInsets.only(left: 10, right: 10),
+    margin: const EdgeInsets.only(left: 10, right: 10),
     decoration: BoxDecoration(
-      color: Color.fromARGB(155, 236, 182, 246),
+      color: const Color.fromARGB(155, 236, 182, 246),
       border: Border.all(color: Colors.grey),
       borderRadius: BorderRadius.circular(30.0),
     ),
     // padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
     child: TextField(
-      style: TextStyle(color: Colors.white),
+      style: const TextStyle(color: Colors.white),
       cursorColor: Colors.white,
       obscuringCharacter: '*',
       controller: controller,
@@ -69,7 +69,7 @@ Container elevatedButtons(
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))),
       child: Text(
         text,
-        style: TextStyle(fontFamily: 'mainFont', fontSize: 20),
+        style: const TextStyle(fontFamily: 'mainFont', fontSize: 20),
       ),
     ),
   );

@@ -41,13 +41,13 @@ class _registerPageState extends State<registerPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 50,
                     backgroundImage: AssetImage(
                       "assets/images/image.png",
                     ),
                   ),
-                  Text(
+                  const Text(
                     "Register!",
                     style: TextStyle(
                         fontFamily: 'mainFont',
