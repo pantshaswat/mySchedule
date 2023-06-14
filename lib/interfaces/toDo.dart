@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myschedule/components/textfield.dart';
 import 'package:myschedule/components/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import "package:uuid/uuid.dart";
@@ -66,9 +67,7 @@ class _toDoPageState extends State<toDoPage> {
     super.initState();
     _getAllItems();
     weekDay();
-    month();
-    weekDay();
-    month();
+    month(DateTime.now());
   }
 
   @override
@@ -103,46 +102,36 @@ class _toDoPageState extends State<toDoPage> {
     }
   }
 
-  var monthName;
-  void month() {
-    int monthNum = DateTime.now().month;
+  month(DateTime dateTime) {
+    var monthName;
+    int monthNum = dateTime.month;
 
     if (monthNum == 1) {
       monthName = 'January';
-    }
-    if (monthNum == 2) {
+    } else if (monthNum == 2) {
       monthName = 'February';
-    }
-    if (monthNum == 3) {
+    } else if (monthNum == 3) {
       monthName = 'March';
-    }
-    if (monthNum == 4) {
+    } else if (monthNum == 4) {
       monthName = 'April';
-    }
-    if (monthNum == 5) {
+    } else if (monthNum == 5) {
       monthName = 'May';
-    }
-    if (monthNum == 6) {
+    } else if (monthNum == 6) {
       monthName = 'June';
-    }
-    if (monthNum == 7) {
+    } else if (monthNum == 7) {
       monthName = 'July';
-    }
-    if (monthNum == 8) {
+    } else if (monthNum == 8) {
       monthName = 'August';
-    }
-    if (monthNum == 9) {
+    } else if (monthNum == 9) {
       monthName = 'September';
-    }
-    if (monthNum == 10) {
+    } else if (monthNum == 10) {
       monthName = 'October';
-    }
-    if (monthNum == 11) {
+    } else if (monthNum == 11) {
       monthName = 'November';
-    }
-    if (monthNum == 12) {
+    } else if (monthNum == 12) {
       monthName = 'December';
     }
+    return monthName;
   }
 
 //Initialing a unique key to assign each to-do item
@@ -169,7 +158,7 @@ class _toDoPageState extends State<toDoPage> {
                       color: Colors.white),
                 ),
                 Text(
-                  "$weekDayName ,${DateTime.now().day} $monthName ",
+                  "$weekDayName ,${DateTime.now().day} ${month(DateTime.now())} ",
                   style: const TextStyle(
                       fontFamily: 'mainFont',
                       color: Colors.white,
@@ -216,9 +205,14 @@ class _toDoPageState extends State<toDoPage> {
                                         onChanged: (value) {
                                           editedToDo = value;
                                         },
-                                        decoration: const InputDecoration(
-                                          labelText: 'Edit Here',
-                                        ),
+                                        decoration: InputDecoration(
+                                            labelText: 'Edit Here',
+                                            suffixIcon: SuffixIconButton1(
+                                                icon: Image.asset(
+                                                    "assets/images/calendar (2).png"),
+                                                onTap: () {
+                                                  dateTimePicker();
+                                                })),
                                       ),
                                       actions: [
                                         TextButton(
@@ -244,7 +238,7 @@ class _toDoPageState extends State<toDoPage> {
                                                   toDoText: editedToDo,
                                                   isChecked: false,
                                                   ID: id,
-                                                  date: DateTime.now(),
+                                                  date: _selectedDate,
                                                 ),
                                               );
                                               print(toDoWork);
@@ -252,7 +246,7 @@ class _toDoPageState extends State<toDoPage> {
                                                   .pop(); // Close the dialog
                                             }
                                           },
-                                          child: const Text('Add'),
+                                          child: const Text('Edit'),
                                         ),
                                         TextButton(
                                           onPressed: () {
@@ -267,6 +261,13 @@ class _toDoPageState extends State<toDoPage> {
                                 );
                               }
 
+                              //AM/PM setter
+                              String m;
+                              if (toDoWork[reversedIndex].date.hour < 12) {
+                                m = 'AM';
+                              } else {
+                                m = 'PM';
+                              }
                               return Opacity(
                                 opacity: toDoWork[reversedIndex].isChecked
                                     ? 0.5
@@ -302,7 +303,7 @@ class _toDoPageState extends State<toDoPage> {
                                       ),
                                     ),
                                     subtitle: Text(
-                                      '${toDoWork[reversedIndex].date.day} ${monthName.substring(0, 3)} ${toDoWork[reversedIndex].date.year}',
+                                      '${toDoWork[reversedIndex].date.hour >= 12 || toDoWork[reversedIndex].date.hour == 0 ? (toDoWork[reversedIndex].date.hour - 12).abs() : toDoWork[reversedIndex].date.hour}:${toDoWork[reversedIndex].date.minute} $m,  ${toDoWork[reversedIndex].date.day} ${month(toDoWork[reversedIndex].date).toString().substring(0, 3)} ${toDoWork[reversedIndex].date.year}',
                                       style: const TextStyle(
                                         fontFamily: 'mainFont',
                                         fontSize: 12,
@@ -348,6 +349,44 @@ class _toDoPageState extends State<toDoPage> {
     );
   }
 
+  dateTimePicker() async {
+    DateTime? dateTime = await showOmniDateTimePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1600).subtract(const Duration(days: 3652)),
+      lastDate: DateTime.now().add(
+        const Duration(days: 3652),
+      ),
+      is24HourMode: false,
+      isShowSeconds: false,
+      minutesInterval: 1,
+      secondsInterval: 1,
+      isForce2Digits: true,
+      borderRadius: const BorderRadius.all(Radius.circular(16)),
+      constraints: const BoxConstraints(
+        maxWidth: 350,
+        maxHeight: 650,
+      ),
+      transitionBuilder: (context, anim1, anim2, child) {
+        return FadeTransition(
+          opacity: anim1.drive(
+            Tween(
+              begin: 0,
+              end: 1,
+            ),
+          ),
+          child: child,
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 200),
+      barrierDismissible: true,
+    );
+    setState(() {
+      print(dateTime);
+      _selectedDate = dateTime!;
+    });
+  }
+
 //function to add new list
   void addToDo() {
     showDialog(
@@ -356,58 +395,17 @@ class _toDoPageState extends State<toDoPage> {
         String editedToDo = '';
         return AlertDialog(
           title: const Text('Add ToDo'),
-          content: Column(
-            children: [
-              ElevatedButton(
-                onPressed: () async {
-                  DateTime? dateTime = await showOmniDateTimePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate:
-                        DateTime(1600).subtract(const Duration(days: 3652)),
-                    lastDate: DateTime.now().add(
-                      const Duration(days: 3652),
-                    ),
-                    is24HourMode: false,
-                    isShowSeconds: false,
-                    minutesInterval: 1,
-                    secondsInterval: 1,
-                    isForce2Digits: true,
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    constraints: const BoxConstraints(
-                      maxWidth: 350,
-                      maxHeight: 650,
-                    ),
-                    transitionBuilder: (context, anim1, anim2, child) {
-                      return FadeTransition(
-                        opacity: anim1.drive(
-                          Tween(
-                            begin: 0,
-                            end: 1,
-                          ),
-                        ),
-                        child: child,
-                      );
-                    },
-                    transitionDuration: const Duration(milliseconds: 200),
-                    barrierDismissible: true,
-                  );
-                  setState(() {
-                    print(dateTime);
-                    _selectedDate = dateTime!;
-                  });
-                },
-                child: const Text('Select Date and Time'),
-              ),
-              TextField(
-                onChanged: (value) {
-                  editedToDo = value;
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Add Here',
-                ),
-              ),
-            ],
+          content: TextField(
+            onChanged: (value) {
+              editedToDo = value;
+            },
+            decoration: InputDecoration(
+                labelText: 'Add Here',
+                suffixIcon: SuffixIconButton1(
+                    icon: Image.asset("assets/images/calendar (2).png"),
+                    onTap: () {
+                      dateTimePicker();
+                    })),
           ),
           actions: [
             TextButton(

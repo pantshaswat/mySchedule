@@ -10,6 +10,13 @@ SuffixIconButton({IconData? icon, Function? onTap}) {
   );
 }
 
+SuffixIconButton1({required Widget icon, Function? onTap}) {
+  return GestureDetector(
+    onTap: onTap as void Function()?,
+    child: icon,
+  );
+}
+
 Container reusableTextField(String text, IconData icon, bool isPasswordType,
     TextEditingController controller,
     {IconData? suffixIcon, onTap}) {
