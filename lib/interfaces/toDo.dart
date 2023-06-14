@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myschedule/components/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import "package:uuid/uuid.dart";
+import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 
 class toDoPage extends StatefulWidget {
   const toDoPage({super.key});
@@ -20,7 +21,7 @@ class _toDoPageState extends State<toDoPage> {
           key,
           OtherItems,
         )
-        .then((value) => print(value));
+        .then((value) => print(OtherItems[2]));
   }
 
   Future<void> _getItems(String key) async {
@@ -41,11 +42,13 @@ class _toDoPageState extends State<toDoPage> {
   Future<void> _getAllItems() async {
     final SharedPreferences prefs = await _prefs;
     prefs.getKeys().forEach((key) {
-      print(prefs.getStringList(key)![0]);
+      print(prefs.getStringList(key)![3]);
       ToDoItem newItem = ToDoItem(
-          toDoText: prefs.getStringList(key)![1],
-          isChecked: convertToBoolean(prefs.getStringList(key)![2]),
-          ID: key);
+        toDoText: prefs.getStringList(key)![1],
+        isChecked: convertToBoolean(prefs.getStringList(key)![2]),
+        ID: key,
+        date: DateTime.parse(prefs.getStringList(key)![3]),
+      );
       toDoWork.add(newItem);
       setState(() {});
     });
@@ -54,6 +57,9 @@ class _toDoPageState extends State<toDoPage> {
   //ToDoItem class is at bottom
   List<ToDoItem> toDoWork = [];
   final TextEditingController _textEditingController = TextEditingController();
+
+  //Initializing date Time selector
+  DateTime _selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -225,7 +231,8 @@ class _toDoPageState extends State<toDoPage> {
                                               ToDoItem newTodo = ToDoItem(
                                                   toDoText: editedToDo,
                                                   isChecked: false,
-                                                  ID: id);
+                                                  ID: id,
+                                                  date: DateTime.now());
                                               _setItems(id, [
                                                 newTodo.ID,
                                                 newTodo.toDoText,
@@ -237,6 +244,7 @@ class _toDoPageState extends State<toDoPage> {
                                                   toDoText: editedToDo,
                                                   isChecked: false,
                                                   ID: id,
+                                                  date: DateTime.now(),
                                                 ),
                                               );
                                               print(toDoWork);
@@ -293,7 +301,14 @@ class _toDoPageState extends State<toDoPage> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    subtitle: const Text('Wednesday, 9 AM'),
+                                    subtitle: Text(
+                                      '${toDoWork[reversedIndex].date.day} ${monthName.substring(0, 3)} ${toDoWork[reversedIndex].date.year}',
+                                      style: const TextStyle(
+                                        fontFamily: 'mainFont',
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                     trailing: SizedBox(
                                       height: 50,
                                       width: 100,
@@ -333,7 +348,6 @@ class _toDoPageState extends State<toDoPage> {
     );
   }
 
-  DateTime? _selectedDate;
   void calenderPicker() async {
     final TimeOfDay? selectedTime =
         await showTimePicker(context: context, initialTime: TimeOfDay.now());
@@ -359,27 +373,85 @@ class _toDoPageState extends State<toDoPage> {
         String editedToDo = '';
         return AlertDialog(
           title: const Text('Add ToDo'),
-          content: TextField(
-            onChanged: (value) {
-              editedToDo = value;
-            },
-            decoration: const InputDecoration(
-              labelText: 'Write your ToDo',
-            ),
+          content: Column(
+            children: [
+              ElevatedButton(
+                onPressed: () async {
+                  DateTime? dateTime = await showOmniDateTimePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate:
+                        DateTime(1600).subtract(const Duration(days: 3652)),
+                    lastDate: DateTime.now().add(
+                      const Duration(days: 3652),
+                    ),
+                    is24HourMode: false,
+                    isShowSeconds: false,
+                    minutesInterval: 1,
+                    secondsInterval: 1,
+                    isForce2Digits: true,
+                    borderRadius: const BorderRadius.all(Radius.circular(16)),
+                    constraints: const BoxConstraints(
+                      maxWidth: 350,
+                      maxHeight: 650,
+                    ),
+                    transitionBuilder: (context, anim1, anim2, child) {
+                      return FadeTransition(
+                        opacity: anim1.drive(
+                          Tween(
+                            begin: 0,
+                            end: 1,
+                          ),
+                        ),
+                        child: child,
+                      );
+                    },
+                    transitionDuration: const Duration(milliseconds: 200),
+                    barrierDismissible: true,
+                  );
+                  setState(() {
+                    print(dateTime);
+                    _selectedDate = dateTime!;
+                  });
+                },
+                child: const Text('Select Date and Time'),
+              ),
+              TextField(
+                onChanged: (value) {
+                  editedToDo = value;
+                },
+                decoration: const InputDecoration(
+                  labelText: 'Add Here',
+                ),
+              ),
+            ],
           ),
           actions: [
             TextButton(
               onPressed: () {
                 String id = uuid.v1();
                 if (editedToDo.isNotEmpty) {
+                  //TODO date are now set to current date
+                  //change them later on
                   toDoWork.add(
-                      ToDoItem(toDoText: editedToDo, isChecked: false, ID: id));
-                  ToDoItem newTodo =
-                      ToDoItem(toDoText: editedToDo, isChecked: false, ID: id);
+                    ToDoItem(
+                      toDoText: editedToDo,
+                      isChecked: false,
+                      ID: id,
+                      date: _selectedDate,
+                    ),
+                  );
+                  ToDoItem newTodo = ToDoItem(
+                    toDoText: editedToDo,
+                    isChecked: false,
+                    ID: id,
+                    date: _selectedDate,
+                  );
                   _setItems(id, [
                     newTodo.ID,
                     newTodo.toDoText,
-                    newTodo.isChecked.toString()
+                    newTodo.isChecked.toString(),
+                    newTodo.date.toString(),
                   ]);
                   setState(() {});
                   Navigator.of(context).pop(); // Close the dialog
@@ -431,5 +503,10 @@ class ToDoItem {
   String toDoText;
   bool isChecked;
   String ID;
-  ToDoItem({required this.toDoText, required this.isChecked, required this.ID});
+  DateTime date;
+  ToDoItem(
+      {required this.toDoText,
+      required this.isChecked,
+      required this.ID,
+      required this.date});
 }
