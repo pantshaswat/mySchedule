@@ -102,173 +102,177 @@ class _toDoPageState extends State<toDoPage> {
     var h = MediaQuery.of(context).size.height;
     var w = MediaQuery.of(context).size.width;
     return Scaffold(
-      body: SafeArea(
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.deepPurple,
+        toolbarHeight: 60,
+        title: Row(
+          children: [
+            Column(
+              children: [
+                Text(
+                  "Today",
+                  style: TextStyle(
+                      fontFamily: 'mainFont',
+                      fontSize: 45,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ),
+                Text(
+                  "$weekDayName ,${DateTime.now().day} $monthName ",
+                  style: TextStyle(
+                      fontFamily: 'mainFont',
+                      color: Colors.white,
+                      fontSize: 16),
+                )
+              ],
+            ),
+            Spacer(),
+            IconButton(
+                onPressed: calenderPicker,
+                icon: Icon(
+                  Icons.calendar_month,
+                  color: Colors.white,
+                )),
+            IconButton(
+                onPressed: addToDo,
+                icon: Icon(
+                  Icons.add,
+                  color: Colors.white,
+                ))
+          ],
+        ),
+      ),
+      body: Container(
+          color: Colors.deepPurple,
           child: SingleChildScrollView(
-        child: Stack(children: [
-          Container(
-            height: h,
-            color: Colors.deepPurple,
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Column(
-                        children: [
-                          Text(
-                            "Today",
-                            style: TextStyle(
-                                fontFamily: 'mainFont',
-                                fontSize: 45,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
-                          ),
-                          Text(
-                            "$weekDayName ,${DateTime.now().day} $monthName ",
-                            style: TextStyle(
-                                fontFamily: 'mainFont',
-                                color: Colors.white,
-                                fontSize: 16),
-                          )
-                        ],
-                      ),
-                      Spacer(),
-                      IconButton(
-                          onPressed: calenderPicker,
-                          icon: Icon(
-                            Icons.calendar_month,
-                            color: Colors.white,
-                          )),
-                      IconButton(
-                          onPressed: addToDo,
-                          icon: Icon(
-                            Icons.add,
-                            color: Colors.white,
-                          ))
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  //listview builder for todo list
-                  Expanded(
-                      child: ListView.builder(
-                          itemCount: toDoWork.length,
-                          itemBuilder: ((context, index) {
-                            //function to edit the list
-                            void editToDo() {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  String editedToDo = '';
-                                  return AlertDialog(
-                                    title: Text('Edit ToDo'),
-                                    content: TextField(
-                                      onChanged: (value) {
-                                        editedToDo = value;
-                                      },
-                                      decoration: InputDecoration(
-                                        labelText: 'Edit Here',
+            child: SizedBox(
+              height: h,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20),
+                child: Column(
+                  children: [
+                    SizedBox(height: 20),
+                    //listview builder for todo list
+                    Expanded(
+                        child: ListView.builder(
+                            itemCount: toDoWork.length,
+                            itemBuilder: ((context, index) {
+                              //function to edit the list
+                              void editToDo() {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    String editedToDo = '';
+                                    return AlertDialog(
+                                      title: Text('Edit ToDo'),
+                                      content: TextField(
+                                        onChanged: (value) {
+                                          editedToDo = value;
+                                        },
+                                        decoration: InputDecoration(
+                                          labelText: 'Edit Here',
+                                        ),
                                       ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          if (editedToDo.isNotEmpty) {
-                                            //first removing the value at index
-                                            toDoWork.removeAt(index);
-                                            //then inserting the new value at the same index
-                                            toDoWork.insert(
-                                                index,
-                                                ToDoItem(
-                                                    toDoText: editedToDo,
-                                                    isChecked: false));
-                                            print(toDoWork);
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            if (editedToDo.isNotEmpty) {
+                                              //first removing the value at index
+                                              toDoWork.removeAt(index);
+                                              //then inserting the new value at the same index
+                                              toDoWork.insert(
+                                                  index,
+                                                  ToDoItem(
+                                                      toDoText: editedToDo,
+                                                      isChecked: false));
+                                              print(toDoWork);
+                                              Navigator.of(context)
+                                                  .pop(); // Close the dialog
+                                            }
+                                          },
+                                          child: Text('Add'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
                                             Navigator.of(context)
                                                 .pop(); // Close the dialog
-                                          }
-                                        },
-                                        child: Text('Add'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context)
-                                              .pop(); // Close the dialog
-                                        },
-                                        child: Text('Cancel'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            }
-
-                            return Opacity(
-                              opacity: toDoWork[index].isChecked ? 0.5 : 1.0,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.black),
-                                  color: Color.fromARGB(
-                                    155,
-                                    236,
-                                    182,
-                                    246,
-                                  ),
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: ListTile(
-                                  leading: Checkbox(
-                                    activeColor: Colors.deepPurple,
-                                    value: toDoWork[index].isChecked,
-                                    onChanged: (bool? value) {
-                                      setState(() {
-                                        toDoWork[index].isChecked =
-                                            value ?? false;
-                                      });
-                                    },
-                                  ),
-                                  title: Text(
-                                    toDoWork[index].toDoText,
-                                    style: TextStyle(
-                                      fontFamily: 'mainFont',
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  subtitle: Text('Wednesday, 9 AM'),
-                                  trailing: Container(
-                                    height: 50,
-                                    width: 100,
-                                    child: Row(
-                                      children: [
-                                        IconButton(
-                                            onPressed: editToDo,
-                                            icon: Icon(
-                                              Icons.edit,
-                                              color: Colors.deepPurple,
-                                            )),
-                                        IconButton(
-                                            onPressed: () {
-                                              setState(() {
-                                                toDoWork.removeAt(index);
-                                              });
-                                            },
-                                            icon: Icon(
-                                              Icons.delete,
-                                              color: Colors.deepPurple,
-                                            )),
+                                          },
+                                          child: Text('Cancel'),
+                                        ),
                                       ],
+                                    );
+                                  },
+                                );
+                              }
+
+                              return Opacity(
+                                opacity: toDoWork[index].isChecked ? 0.5 : 1.0,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.black),
+                                    color: Color.fromARGB(
+                                      155,
+                                      236,
+                                      182,
+                                      246,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: ListTile(
+                                    leading: Checkbox(
+                                      activeColor: Colors.deepPurple,
+                                      value: toDoWork[index].isChecked,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          toDoWork[index].isChecked =
+                                              value ?? false;
+                                        });
+                                      },
+                                    ),
+                                    title: Text(
+                                      toDoWork[index].toDoText,
+                                      style: TextStyle(
+                                        fontFamily: 'mainFont',
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    subtitle: Text('Wednesday, 9 AM'),
+                                    trailing: Container(
+                                      height: 50,
+                                      width: 100,
+                                      child: Row(
+                                        children: [
+                                          IconButton(
+                                              onPressed: editToDo,
+                                              icon: Icon(
+                                                Icons.edit,
+                                                color: Colors.deepPurple,
+                                              )),
+                                          IconButton(
+                                              onPressed: () {
+                                                setState(() {
+                                                  toDoWork.removeAt(index);
+                                                });
+                                              },
+                                              icon: Icon(
+                                                Icons.delete,
+                                                color: Colors.deepPurple,
+                                              )),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
-                          })))
-                ],
+                              );
+                            })))
+                  ],
+                ),
               ),
             ),
-          ),
-        ]),
-      )),
+          )),
     );
   }
 
@@ -306,7 +310,7 @@ class _toDoPageState extends State<toDoPage> {
                 if (editedToDo.isNotEmpty) {
                   toDoWork
                       .add(ToDoItem(toDoText: editedToDo, isChecked: false));
-
+                  setState(() {});
                   Navigator.of(context).pop(); // Close the dialog
                 }
               },
