@@ -190,6 +190,9 @@ class _toDoPageState extends State<toDoPage> {
       body: Container(
           color: Colors.deepPurple,
           child: SingleChildScrollView(
+
+
+
             child: SizedBox(
               height: h,
               child: Padding(
@@ -253,6 +256,7 @@ class _toDoPageState extends State<toDoPage> {
                                         ),
                                         TextButton(
                                           onPressed: () {
+
                                             Navigator.of(context)
                                                 .pop(); // Close the dialog
                                           },
@@ -264,6 +268,9 @@ class _toDoPageState extends State<toDoPage> {
                                 );
                               }
 
+
+
+
                               return Opacity(
                                 opacity: toDoWork[index].isChecked ? 0.5 : 1.0,
                                 child: Container(
@@ -274,9 +281,13 @@ class _toDoPageState extends State<toDoPage> {
                                       236,
                                       182,
                                       246,
+
                                     ),
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
+
+
+
                                   child: ListTile(
                                     leading: Checkbox(
                                       activeColor: Colors.deepPurple,
@@ -321,6 +332,7 @@ class _toDoPageState extends State<toDoPage> {
                                               )),
                                         ],
                                       ),
+
                                     ),
                                   ),
                                 ),
