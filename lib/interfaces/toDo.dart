@@ -310,6 +310,7 @@ class _toDoPageState extends State<toDoPage> {
                                               )),
                                           IconButton(
                                               onPressed: () {
+                                                _removeItem(toDoWork[index].ID);
                                                 setState(() {
                                                   toDoWork.removeAt(index);
                                                 });
