@@ -77,6 +77,13 @@ class _toDoPageState extends State<toDoPage> {
 
   Future<void> setRemainder(ToDoItem item) async {
     //Balla Talla kam garne vako cha koi chune haina yo code lai
+    //AM/PM setter
+    String m;
+    if (item.date.hour < 12) {
+      m = 'AM';
+    } else {
+      m = 'PM';
+    }
     print(item.date);
     print(DateTime.now());
     Duration difference = item.date.difference(DateTime.now());
@@ -93,8 +100,8 @@ class _toDoPageState extends State<toDoPage> {
     }
     await flutterLocalNotificationsPlugin.zonedSchedule(
         0,
-        item.toDoText,
-        item.toDoText,
+        '${item.toDoText} is due today',
+        '${item.date.hour >= 12 || item.date.hour == 0 ? (item.date.hour - 12).abs() : item.date.hour}:${item.date.minute} $m',
         tz.TZDateTime.now(tz.local).add(Duration(seconds: differenceInSeconds)),
         const NotificationDetails(
             android: AndroidNotificationDetails(
@@ -102,6 +109,13 @@ class _toDoPageState extends State<toDoPage> {
                 channelDescription: 'your channel description')),
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime);
+  }
+
+  Future<void> deleteNotification(int notificationId) async {
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+
+    await flutterLocalNotificationsPlugin.cancel(notificationId);
   }
 
   @override
@@ -392,6 +406,7 @@ class _toDoPageState extends State<toDoPage> {
                                                     toDoWork.removeAt(
                                                         reversedIndex);
                                                   });
+                                                  deleteNotification(0);
                                                 },
                                                 icon: const Icon(
                                                   Icons.delete,
