@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:myschedule/components/textfield.dart';
@@ -5,10 +7,8 @@ import 'package:myschedule/utils/notification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import "package:uuid/uuid.dart";
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
-import 'package:workmanager/workmanager.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:flutter/foundation.dart';
 
 class toDoPage extends StatefulWidget {
   const toDoPage({super.key});
@@ -85,10 +85,12 @@ class _toDoPageState extends State<toDoPage> {
     tz.setLocalLocation(tz.getLocation('Asia/Kathmandu'));
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
-    flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()!
-        .requestPermission();
+    if (Platform.isAndroid) {
+      flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()!
+          .requestPermission();
+    }
     await flutterLocalNotificationsPlugin.zonedSchedule(
         0,
         item.toDoText,
