@@ -383,7 +383,7 @@ class _toDoPageState extends State<toDoPage> {
     );
     setState(() {
       print(dateTime);
-      _selectedDate = dateTime!;
+      _selectedDate = dateTime ?? DateTime.now();
     });
   }
 
