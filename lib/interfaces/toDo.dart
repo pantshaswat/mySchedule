@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:myschedule/components/textfield.dart';
 import 'package:myschedule/components/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import "package:uuid/uuid.dart";
+import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 
 class toDoPage extends StatefulWidget {
   const toDoPage({super.key});
@@ -20,7 +22,7 @@ class _toDoPageState extends State<toDoPage> {
           key,
           OtherItems,
         )
-        .then((value) => print(value));
+        .then((value) => print(OtherItems[2]));
   }
 
   Future<void> _getItems(String key) async {
@@ -41,11 +43,13 @@ class _toDoPageState extends State<toDoPage> {
   Future<void> _getAllItems() async {
     final SharedPreferences prefs = await _prefs;
     prefs.getKeys().forEach((key) {
-      print(prefs.getStringList(key)![0]);
+      print(prefs.getStringList(key)![3]);
       ToDoItem newItem = ToDoItem(
-          toDoText: prefs.getStringList(key)![1],
-          isChecked: convertToBoolean(prefs.getStringList(key)![2]),
-          ID: key);
+        toDoText: prefs.getStringList(key)![1],
+        isChecked: convertToBoolean(prefs.getStringList(key)![2]),
+        ID: key,
+        date: DateTime.parse(prefs.getStringList(key)![3]),
+      );
       toDoWork.add(newItem);
       setState(() {});
     });
@@ -55,14 +59,15 @@ class _toDoPageState extends State<toDoPage> {
   List<ToDoItem> toDoWork = [];
   final TextEditingController _textEditingController = TextEditingController();
 
+  //Initializing date Time selector
+  DateTime _selectedDate = DateTime.now();
+
   @override
   void initState() {
     super.initState();
     _getAllItems();
     weekDay();
-    month();
-    weekDay();
-    month();
+    month(DateTime.now());
   }
 
   @override
@@ -97,46 +102,36 @@ class _toDoPageState extends State<toDoPage> {
     }
   }
 
-  var monthName;
-  void month() {
-    int monthNum = DateTime.now().month;
+  month(DateTime dateTime) {
+    var monthName;
+    int monthNum = dateTime.month;
 
     if (monthNum == 1) {
       monthName = 'January';
-    }
-    if (monthNum == 2) {
+    } else if (monthNum == 2) {
       monthName = 'February';
-    }
-    if (monthNum == 3) {
+    } else if (monthNum == 3) {
       monthName = 'March';
-    }
-    if (monthNum == 4) {
+    } else if (monthNum == 4) {
       monthName = 'April';
-    }
-    if (monthNum == 5) {
+    } else if (monthNum == 5) {
       monthName = 'May';
-    }
-    if (monthNum == 6) {
+    } else if (monthNum == 6) {
       monthName = 'June';
-    }
-    if (monthNum == 7) {
+    } else if (monthNum == 7) {
       monthName = 'July';
-    }
-    if (monthNum == 8) {
+    } else if (monthNum == 8) {
       monthName = 'August';
-    }
-    if (monthNum == 9) {
+    } else if (monthNum == 9) {
       monthName = 'September';
-    }
-    if (monthNum == 10) {
+    } else if (monthNum == 10) {
       monthName = 'October';
-    }
-    if (monthNum == 11) {
+    } else if (monthNum == 11) {
       monthName = 'November';
-    }
-    if (monthNum == 12) {
+    } else if (monthNum == 12) {
       monthName = 'December';
     }
+    return monthName;
   }
 
 //Initialing a unique key to assign each to-do item
@@ -163,7 +158,7 @@ class _toDoPageState extends State<toDoPage> {
                       color: Colors.white),
                 ),
                 Text(
-                  "$weekDayName ,${DateTime.now().day} $monthName ",
+                  "$weekDayName ,${DateTime.now().day} ${month(DateTime.now())} ",
                   style: const TextStyle(
                       fontFamily: 'mainFont',
                       color: Colors.white,
@@ -172,12 +167,6 @@ class _toDoPageState extends State<toDoPage> {
               ],
             ),
             const Spacer(),
-            IconButton(
-                onPressed: calenderPicker,
-                icon: const Icon(
-                  Icons.calendar_month,
-                  color: Colors.white,
-                )),
             IconButton(
                 onPressed: addToDo,
                 icon: const Icon(
@@ -190,9 +179,6 @@ class _toDoPageState extends State<toDoPage> {
       body: Container(
           color: Colors.deepPurple,
           child: SingleChildScrollView(
-
-
-
             child: SizedBox(
               height: h,
               child: Padding(
@@ -206,6 +192,7 @@ class _toDoPageState extends State<toDoPage> {
                         child: ListView.builder(
                             itemCount: toDoWork.length,
                             itemBuilder: ((context, index) {
+                              int reversedIndex = toDoWork.length - 1 - index;
                               //function to edit the list
                               void editToDo() {
                                 showDialog(
@@ -218,33 +205,40 @@ class _toDoPageState extends State<toDoPage> {
                                         onChanged: (value) {
                                           editedToDo = value;
                                         },
-                                        decoration: const InputDecoration(
-                                          labelText: 'Edit Here',
-                                        ),
+                                        decoration: InputDecoration(
+                                            labelText: 'Edit Here',
+                                            suffixIcon: SuffixIconButton1(
+                                                icon: Image.asset(
+                                                    "assets/images/calendar (2).png"),
+                                                onTap: () {
+                                                  dateTimePicker();
+                                                })),
                                       ),
                                       actions: [
                                         TextButton(
                                           onPressed: () {
                                             if (editedToDo.isNotEmpty) {
                                               //first removing the value at index
-                                              toDoWork.removeAt(index);
+                                              toDoWork.removeAt(reversedIndex);
                                               //then inserting the new value at the same index
                                               String id = uuid.v1();
                                               ToDoItem newTodo = ToDoItem(
                                                   toDoText: editedToDo,
                                                   isChecked: false,
-                                                  ID: id);
+                                                  ID: id,
+                                                  date: DateTime.now());
                                               _setItems(id, [
                                                 newTodo.ID,
                                                 newTodo.toDoText,
                                                 newTodo.isChecked.toString()
                                               ]);
                                               toDoWork.insert(
-                                                index,
+                                                reversedIndex,
                                                 ToDoItem(
                                                   toDoText: editedToDo,
                                                   isChecked: false,
                                                   ID: id,
+                                                  date: _selectedDate,
                                                 ),
                                               );
                                               print(toDoWork);
@@ -252,11 +246,10 @@ class _toDoPageState extends State<toDoPage> {
                                                   .pop(); // Close the dialog
                                             }
                                           },
-                                          child: const Text('Add'),
+                                          child: const Text('Edit'),
                                         ),
                                         TextButton(
                                           onPressed: () {
-
                                             Navigator.of(context)
                                                 .pop(); // Close the dialog
                                           },
@@ -268,11 +261,17 @@ class _toDoPageState extends State<toDoPage> {
                                 );
                               }
 
-
-
-
+                              //AM/PM setter
+                              String m;
+                              if (toDoWork[reversedIndex].date.hour < 12) {
+                                m = 'AM';
+                              } else {
+                                m = 'PM';
+                              }
                               return Opacity(
-                                opacity: toDoWork[index].isChecked ? 0.5 : 1.0,
+                                opacity: toDoWork[reversedIndex].isChecked
+                                    ? 0.5
+                                    : 1.0,
                                 child: Container(
                                   decoration: BoxDecoration(
                                     border: Border.all(color: Colors.black),
@@ -281,33 +280,36 @@ class _toDoPageState extends State<toDoPage> {
                                       236,
                                       182,
                                       246,
-
                                     ),
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
-
-
-
                                   child: ListTile(
                                     leading: Checkbox(
                                       activeColor: Colors.deepPurple,
-                                      value: toDoWork[index].isChecked,
+                                      value: toDoWork[reversedIndex].isChecked,
                                       onChanged: (bool? value) {
                                         setState(() {
-                                          toDoWork[index].isChecked =
+                                          toDoWork[reversedIndex].isChecked =
                                               value ?? false;
                                         });
                                       },
                                     ),
                                     title: Text(
-                                      toDoWork[index].toDoText,
+                                      toDoWork[reversedIndex].toDoText,
                                       style: const TextStyle(
                                         fontFamily: 'mainFont',
                                         fontSize: 15,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    subtitle: const Text('Wednesday, 9 AM'),
+                                    subtitle: Text(
+                                      '${toDoWork[reversedIndex].date.hour >= 12 || toDoWork[reversedIndex].date.hour == 0 ? (toDoWork[reversedIndex].date.hour - 12).abs() : toDoWork[reversedIndex].date.hour}:${toDoWork[reversedIndex].date.minute} $m,  ${toDoWork[reversedIndex].date.day} ${month(toDoWork[reversedIndex].date).toString().substring(0, 3)} ${toDoWork[reversedIndex].date.year}',
+                                      style: const TextStyle(
+                                        fontFamily: 'mainFont',
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                     trailing: SizedBox(
                                       height: 50,
                                       width: 100,
@@ -321,9 +323,11 @@ class _toDoPageState extends State<toDoPage> {
                                               )),
                                           IconButton(
                                               onPressed: () {
-                                                _removeItem(toDoWork[index].ID);
+                                                _removeItem(
+                                                    toDoWork[reversedIndex].ID);
                                                 setState(() {
-                                                  toDoWork.removeAt(index);
+                                                  toDoWork
+                                                      .removeAt(reversedIndex);
                                                 });
                                               },
                                               icon: const Icon(
@@ -332,7 +336,6 @@ class _toDoPageState extends State<toDoPage> {
                                               )),
                                         ],
                                       ),
-
                                     ),
                                   ),
                                 ),
@@ -346,16 +349,42 @@ class _toDoPageState extends State<toDoPage> {
     );
   }
 
-  void calenderPicker() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return DatePickerDialog(
-            initialDate: DateTime.now(),
-            firstDate: kFirstDay,
-            lastDate: kLastDay,
-          );
-        });
+  dateTimePicker() async {
+    DateTime? dateTime = await showOmniDateTimePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1600).subtract(const Duration(days: 3652)),
+      lastDate: DateTime.now().add(
+        const Duration(days: 3652),
+      ),
+      is24HourMode: false,
+      isShowSeconds: false,
+      minutesInterval: 1,
+      secondsInterval: 1,
+      isForce2Digits: true,
+      borderRadius: const BorderRadius.all(Radius.circular(16)),
+      constraints: const BoxConstraints(
+        maxWidth: 350,
+        maxHeight: 650,
+      ),
+      transitionBuilder: (context, anim1, anim2, child) {
+        return FadeTransition(
+          opacity: anim1.drive(
+            Tween(
+              begin: 0,
+              end: 1,
+            ),
+          ),
+          child: child,
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 200),
+      barrierDismissible: true,
+    );
+    setState(() {
+      print(dateTime);
+      _selectedDate = dateTime ?? DateTime.now();
+    });
   }
 
 //function to add new list
@@ -370,35 +399,56 @@ class _toDoPageState extends State<toDoPage> {
             onChanged: (value) {
               editedToDo = value;
             },
-            decoration: const InputDecoration(
-              labelText: 'Add Here',
-            ),
+            decoration: InputDecoration(
+                labelText: 'Add Here',
+                suffixIcon: SuffixIconButton1(
+                    icon: Image.asset("assets/images/calendar (2).png"),
+                    onTap: () {
+                      dateTimePicker();
+                    })),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 String id = uuid.v1();
                 if (editedToDo.isNotEmpty) {
+                  //TODO date are now set to current date
+                  //change them later on
                   toDoWork.add(
-                      ToDoItem(toDoText: editedToDo, isChecked: false, ID: id));
-                  ToDoItem newTodo =
-                      ToDoItem(toDoText: editedToDo, isChecked: false, ID: id);
+                    ToDoItem(
+                      toDoText: editedToDo,
+                      isChecked: false,
+                      ID: id,
+                      date: _selectedDate,
+                    ),
+                  );
+                  ToDoItem newTodo = ToDoItem(
+                    toDoText: editedToDo,
+                    isChecked: false,
+                    ID: id,
+                    date: _selectedDate,
+                  );
                   _setItems(id, [
                     newTodo.ID,
                     newTodo.toDoText,
-                    newTodo.isChecked.toString()
+                    newTodo.isChecked.toString(),
+                    newTodo.date.toString(),
                   ]);
                   setState(() {});
                   Navigator.of(context).pop(); // Close the dialog
                 }
               },
-              child: const Text('Add'),
+              child: const Text(
+                'Add',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: const Text('Cancel'),
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.black)),
             ),
           ],
         );
@@ -422,5 +472,10 @@ class ToDoItem {
   String toDoText;
   bool isChecked;
   String ID;
-  ToDoItem({required this.toDoText, required this.isChecked, required this.ID});
+  DateTime date;
+  ToDoItem(
+      {required this.toDoText,
+      required this.isChecked,
+      required this.ID,
+      required this.date});
 }
