@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:myschedule/components/textfield.dart';
 import 'package:myschedule/utils/notification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import "package:uuid/uuid.dart";
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class toDoPage extends StatefulWidget {
   const toDoPage({super.key});
@@ -25,6 +30,7 @@ class _toDoPageState extends State<toDoPage> {
         .then((value) => print(OtherItems[2]));
   }
 
+//Functions for using shared preferences
   Future<void> _getItems(String key) async {
     final SharedPreferences prefs = await _prefs;
     prefs.getStringList(key);
@@ -51,7 +57,7 @@ class _toDoPageState extends State<toDoPage> {
         toDoText: prefs.getStringList(key)![1],
         isChecked: convertToBoolean(prefs.getStringList(key)![2]),
         ID: key,
-        //date: DateTime.now(),
+        // date: DateTime.now(),
         date: DateTime.parse(prefs.getStringList(key)![3]),
       );
       toDoWork.add(newItem);
@@ -60,12 +66,43 @@ class _toDoPageState extends State<toDoPage> {
     });
   }
 
+  //Till here
+
   //ToDoItem class is at bottom
   List<ToDoItem> toDoWork = [];
   final TextEditingController _textEditingController = TextEditingController();
 
   //Initializing date Time selector
   DateTime _selectedDate = DateTime.now();
+
+  Future<void> setRemainder(ToDoItem item) async {
+    //Balla Talla kam garne vako cha koi chune haina yo code lai
+    print(item.date);
+    print(DateTime.now());
+    Duration difference = item.date.difference(DateTime.now());
+    int differenceInSeconds = difference.inSeconds;
+    tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('Asia/Kathmandu'));
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+    if (Platform.isAndroid) {
+      flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()!
+          .requestPermission();
+    }
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+        0,
+        item.toDoText,
+        item.toDoText,
+        tz.TZDateTime.now(tz.local).add(Duration(seconds: differenceInSeconds)),
+        const NotificationDetails(
+            android: AndroidNotificationDetails(
+                'your channel id', 'your channel name',
+                channelDescription: 'your channel description')),
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime);
+  }
 
   @override
   void initState() {
@@ -289,11 +326,11 @@ class _toDoPageState extends State<toDoPage> {
                                     child: ListTile(
                                       onTap: () {
                                         NotificationService().showNotification(
-                                          id: 0,
-                                          title: 'Check your to-do list',
+                                          id: index,
+                                          title: 'To-Do Task',
                                           body:
-                                              'You have a to-do task to complete',
-                                          payLoad: 'item x',
+                                              '${toDoWork[reversedIndex].toDoText} is due today',
+                                          payLoad: index.toString(),
                                         );
                                       },
                                       leading: Checkbox(
@@ -438,6 +475,14 @@ class _toDoPageState extends State<toDoPage> {
             TextButton(
               onPressed: () {
                 String id = uuid.v1();
+                if (_selectedDate.difference(DateTime.now()).inSeconds < 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please select a valid date'),
+                    ),
+                  );
+                  return;
+                }
                 if (editedToDo.isNotEmpty) {
                   //TODO date are now set to current date
                   //change them later on
@@ -461,6 +506,7 @@ class _toDoPageState extends State<toDoPage> {
                     newTodo.isChecked.toString(),
                     newTodo.date.toString(),
                   ]);
+                  setRemainder(newTodo);
                   setState(() {});
                   Navigator.of(context).pop(); // Close the dialog
                 }
