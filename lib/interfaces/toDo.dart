@@ -274,88 +274,94 @@ class _toDoPageState extends State<toDoPage> {
                               } else {
                                 m = 'PM';
                               }
-                              return Opacity(
-                                opacity: toDoWork[reversedIndex].isChecked
-                                    ? 0.5
-                                    : 1.0,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.black),
-                                    color: const Color.fromARGB(
-                                      155,
-                                      236,
-                                      182,
-                                      246,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: ListTile(
-                                    leading: Checkbox(
-                                      activeColor: Colors.deepPurple,
-                                      value: toDoWork[reversedIndex].isChecked,
-                                      onChanged: (bool? value) {
-                                        bool update =
-                                            !toDoWork[reversedIndex].isChecked;
-                                        _setItems(toDoWork[reversedIndex].ID, [
-                                          toDoWork[reversedIndex].ID,
-                                          toDoWork[reversedIndex].toDoText,
-                                          update.toString(),
-                                          toDoWork[reversedIndex]
-                                              .date
-                                              .toString(),
-                                        ]
-                                            // toDoWork[reversedIndex].isChecked
-                                            //     ? 'false'
-                                            //     : 'true',
-                                            );
-                                        setState(() {
-                                          toDoWork[reversedIndex].isChecked =
-                                              !toDoWork[reversedIndex]
-                                                  .isChecked;
-                                        });
-                                      },
-                                    ),
-                                    title: Text(
-                                      toDoWork[reversedIndex].toDoText,
-                                      style: const TextStyle(
-                                        fontFamily: 'mainFont',
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
+                              return Container(
+                                margin: EdgeInsets.only(bottom: 7),
+                                child: Opacity(
+                                  opacity: toDoWork[reversedIndex].isChecked
+                                      ? 0.5
+                                      : 1.0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.black),
+                                      color: const Color.fromARGB(
+                                        155,
+                                        236,
+                                        182,
+                                        246,
                                       ),
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                    subtitle: Text(
-                                      '${toDoWork[reversedIndex].date.hour >= 12 || toDoWork[reversedIndex].date.hour == 0 ? (toDoWork[reversedIndex].date.hour - 12).abs() : toDoWork[reversedIndex].date.hour}:${toDoWork[reversedIndex].date.minute} $m,  ${toDoWork[reversedIndex].date.day} ${month(toDoWork[reversedIndex].date).toString().substring(0, 3)} ${toDoWork[reversedIndex].date.year}',
-                                      style: const TextStyle(
-                                        fontFamily: 'mainFont',
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
+                                    child: ListTile(
+                                      leading: Checkbox(
+                                        activeColor: Colors.deepPurple,
+                                        value:
+                                            toDoWork[reversedIndex].isChecked,
+                                        onChanged: (bool? value) {
+                                          bool update = !toDoWork[reversedIndex]
+                                              .isChecked;
+                                          _setItems(
+                                              toDoWork[reversedIndex].ID, [
+                                            toDoWork[reversedIndex].ID,
+                                            toDoWork[reversedIndex].toDoText,
+                                            update.toString(),
+                                            toDoWork[reversedIndex]
+                                                .date
+                                                .toString(),
+                                          ]
+                                              // toDoWork[reversedIndex].isChecked
+                                              //     ? 'false'
+                                              //     : 'true',
+                                              );
+                                          setState(() {
+                                            toDoWork[reversedIndex].isChecked =
+                                                !toDoWork[reversedIndex]
+                                                    .isChecked;
+                                          });
+                                        },
                                       ),
-                                    ),
-                                    trailing: SizedBox(
-                                      height: 50,
-                                      width: 100,
-                                      child: Row(
-                                        children: [
-                                          IconButton(
-                                              onPressed: editToDo,
-                                              icon: const Icon(
-                                                Icons.edit,
-                                                color: Colors.deepPurple,
-                                              )),
-                                          IconButton(
-                                              onPressed: () {
-                                                _removeItem(
-                                                    toDoWork[reversedIndex].ID);
-                                                setState(() {
-                                                  toDoWork
-                                                      .removeAt(reversedIndex);
-                                                });
-                                              },
-                                              icon: const Icon(
-                                                Icons.delete,
-                                                color: Colors.deepPurple,
-                                              )),
-                                        ],
+                                      title: Text(
+                                        toDoWork[reversedIndex].toDoText,
+                                        style: const TextStyle(
+                                          fontFamily: 'mainFont',
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        '${toDoWork[reversedIndex].date.hour >= 12 || toDoWork[reversedIndex].date.hour == 0 ? (toDoWork[reversedIndex].date.hour - 12).abs() : toDoWork[reversedIndex].date.hour}:${toDoWork[reversedIndex].date.minute} $m,  ${toDoWork[reversedIndex].date.day} ${month(toDoWork[reversedIndex].date).toString().substring(0, 3)} ${toDoWork[reversedIndex].date.year}',
+                                        style: const TextStyle(
+                                          fontFamily: 'mainFont',
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      trailing: SizedBox(
+                                        height: 50,
+                                        width: 100,
+                                        child: Row(
+                                          children: [
+                                            IconButton(
+                                                onPressed: editToDo,
+                                                icon: const Icon(
+                                                  Icons.edit,
+                                                  color: Colors.deepPurple,
+                                                )),
+                                            IconButton(
+                                                onPressed: () {
+                                                  _removeItem(
+                                                      toDoWork[reversedIndex]
+                                                          .ID);
+                                                  setState(() {
+                                                    toDoWork.removeAt(
+                                                        reversedIndex);
+                                                  });
+                                                },
+                                                icon: const Icon(
+                                                  Icons.delete,
+                                                  color: Colors.deepPurple,
+                                                )),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
