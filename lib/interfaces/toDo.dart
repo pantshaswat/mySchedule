@@ -90,6 +90,7 @@ class _toDoPageState extends State<toDoPage> {
     int differenceInSeconds = difference.inSeconds;
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Asia/Kathmandu'));
+
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
     if (Platform.isAndroid) {
@@ -354,8 +355,14 @@ class _toDoPageState extends State<toDoPage> {
                                         onChanged: (bool? value) {
                                           bool update = !toDoWork[reversedIndex]
                                               .isChecked;
-                                          if (update) {
+
+                                          if (update == true) {
+                                            // Checkbox is checked, cancel the notification
                                             deleteNotification(0);
+                                          } else {
+                                            // Checkbox is unchecked, schedule the notification
+                                            setRemainder(
+                                                toDoWork[reversedIndex]);
                                           }
                                           _setItems(
                                               toDoWork[reversedIndex].ID, [
