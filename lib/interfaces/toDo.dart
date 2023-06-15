@@ -42,15 +42,20 @@ class _toDoPageState extends State<toDoPage> {
 
   Future<void> _getAllItems() async {
     final SharedPreferences prefs = await _prefs;
+    //Gets all the keys from the shared preferences
+    //and then adds them to the list of to-do items
+    //which is then displayed on the screen
     prefs.getKeys().forEach((key) {
       print(prefs.getStringList(key)![3]);
       ToDoItem newItem = ToDoItem(
         toDoText: prefs.getStringList(key)![1],
         isChecked: convertToBoolean(prefs.getStringList(key)![2]),
         ID: key,
-        date: DateTime.parse(prefs.getStringList(key)![3]),
+        date: DateTime.now(),
+        // date: DateTime.parse(prefs.getStringList(key)![3]),
       );
       toDoWork.add(newItem);
+      print(newItem.isChecked);
       setState(() {});
     });
   }
@@ -65,6 +70,7 @@ class _toDoPageState extends State<toDoPage> {
   @override
   void initState() {
     super.initState();
+    // _removeAllItems();
     _getAllItems();
     weekDay();
     month(DateTime.now());
@@ -288,9 +294,24 @@ class _toDoPageState extends State<toDoPage> {
                                       activeColor: Colors.deepPurple,
                                       value: toDoWork[reversedIndex].isChecked,
                                       onChanged: (bool? value) {
+                                        bool update =
+                                            !toDoWork[reversedIndex].isChecked;
+                                        _setItems(toDoWork[reversedIndex].ID, [
+                                          toDoWork[reversedIndex].ID,
+                                          toDoWork[reversedIndex].toDoText,
+                                          update.toString(),
+                                          toDoWork[reversedIndex]
+                                              .date
+                                              .toString(),
+                                        ]
+                                            // toDoWork[reversedIndex].isChecked
+                                            //     ? 'false'
+                                            //     : 'true',
+                                            );
                                         setState(() {
                                           toDoWork[reversedIndex].isChecked =
-                                              value ?? false;
+                                              !toDoWork[reversedIndex]
+                                                  .isChecked;
                                         });
                                       },
                                     ),
