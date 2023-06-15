@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myschedule/components/textfield.dart';
-import 'package:myschedule/components/utils.dart';
+import 'package:myschedule/utils/notification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import "package:uuid/uuid.dart";
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
@@ -42,15 +42,20 @@ class _toDoPageState extends State<toDoPage> {
 
   Future<void> _getAllItems() async {
     final SharedPreferences prefs = await _prefs;
+    //Gets all the keys from the shared preferences
+    //and then adds them to the list of to-do items
+    //which is then displayed on the screen
     prefs.getKeys().forEach((key) {
       print(prefs.getStringList(key)![3]);
       ToDoItem newItem = ToDoItem(
         toDoText: prefs.getStringList(key)![1],
         isChecked: convertToBoolean(prefs.getStringList(key)![2]),
         ID: key,
-        date: DateTime.parse(prefs.getStringList(key)![3]),
+        date: DateTime.now(),
+        // date: DateTime.parse(prefs.getStringList(key)![3]),
       );
       toDoWork.add(newItem);
+      print(newItem.isChecked);
       setState(() {});
     });
   }
@@ -65,8 +70,9 @@ class _toDoPageState extends State<toDoPage> {
   @override
   void initState() {
     super.initState();
+    // _removeAllItems();
     _getAllItems();
-    weekDay();
+    weekDay(DateTime.now());
     month(DateTime.now());
   }
 
@@ -76,34 +82,29 @@ class _toDoPageState extends State<toDoPage> {
     super.dispose();
   }
 
-  var weekDayName;
-  void weekDay() {
-    int day = DateTime.now().weekday;
+  weekDay(DateTime dateTime) {
+    var weekDayName;
+    int day = dateTime.weekday;
     if (day == 1) {
       weekDayName = 'Monday';
-    }
-    if (day == 2) {
+    } else if (day == 2) {
       weekDayName = 'Tuesday';
-    }
-    if (day == 3) {
+    } else if (day == 3) {
       weekDayName = 'Wednesday';
-    }
-    if (day == 4) {
+    } else if (day == 4) {
       weekDayName = 'Thursday';
-    }
-    if (day == 5) {
+    } else if (day == 5) {
       weekDayName = 'Friday';
-    }
-    if (day == 6) {
+    } else if (day == 6) {
       weekDayName = 'Saturday';
-    }
-    if (day == 7) {
+    } else if (day == 7) {
       weekDayName = 'Sunday';
     }
+    return weekDayName;
   }
 
   month(DateTime dateTime) {
-    var monthName;
+    String monthName = '';
     int monthNum = dateTime.month;
 
     if (monthNum == 1) {
@@ -135,7 +136,7 @@ class _toDoPageState extends State<toDoPage> {
   }
 
 //Initialing a unique key to assign each to-do item
-  var uuid = Uuid();
+  var uuid = const Uuid();
   @override
   Widget build(BuildContext context) {
     var h = MediaQuery.of(context).size.height;
@@ -158,7 +159,7 @@ class _toDoPageState extends State<toDoPage> {
                       color: Colors.white),
                 ),
                 Text(
-                  "$weekDayName ,${DateTime.now().day} ${month(DateTime.now())} ",
+                  "${weekDay(DateTime.now())} ,${DateTime.now().day} ${month(DateTime.now())} ",
                   style: const TextStyle(
                       fontFamily: 'mainFont',
                       color: Colors.white,
@@ -268,73 +269,99 @@ class _toDoPageState extends State<toDoPage> {
                               } else {
                                 m = 'PM';
                               }
-                              return Opacity(
-                                opacity: toDoWork[reversedIndex].isChecked
-                                    ? 0.5
-                                    : 1.0,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.black),
-                                    color: const Color.fromARGB(
-                                      155,
-                                      236,
-                                      182,
-                                      246,
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 7),
+                                child: Opacity(
+                                  opacity: toDoWork[reversedIndex].isChecked
+                                      ? 0.5
+                                      : 1.0,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.black),
+                                      color: const Color.fromARGB(
+                                        155,
+                                        236,
+                                        182,
+                                        246,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10.0),
                                     ),
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  child: ListTile(
-                                    leading: Checkbox(
-                                      activeColor: Colors.deepPurple,
-                                      value: toDoWork[reversedIndex].isChecked,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          toDoWork[reversedIndex].isChecked =
-                                              value ?? false;
-                                        });
+                                    child: ListTile(
+                                      onTap: () {
+                                        NotificationService().showNotification(
+                                          id: 0,
+                                          title: 'Check your to-do list',
+                                          body:
+                                              'You have a to-do task to complete',
+                                          payLoad: 'item x',
+                                        );
                                       },
-                                    ),
-                                    title: Text(
-                                      toDoWork[reversedIndex].toDoText,
-                                      style: const TextStyle(
-                                        fontFamily: 'mainFont',
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
+                                      leading: Checkbox(
+                                        activeColor: Colors.deepPurple,
+                                        value:
+                                            toDoWork[reversedIndex].isChecked,
+                                        onChanged: (bool? value) {
+                                          bool update = !toDoWork[reversedIndex]
+                                              .isChecked;
+                                          _setItems(
+                                              toDoWork[reversedIndex].ID, [
+                                            toDoWork[reversedIndex].ID,
+                                            toDoWork[reversedIndex].toDoText,
+                                            update.toString(),
+                                            toDoWork[reversedIndex]
+                                                .date
+                                                .toString(),
+                                          ]);
+                                          setState(() {
+                                            toDoWork[reversedIndex].isChecked =
+                                                !toDoWork[reversedIndex]
+                                                    .isChecked;
+                                          });
+                                        },
                                       ),
-                                    ),
-                                    subtitle: Text(
-                                      '${toDoWork[reversedIndex].date.hour >= 12 || toDoWork[reversedIndex].date.hour == 0 ? (toDoWork[reversedIndex].date.hour - 12).abs() : toDoWork[reversedIndex].date.hour}:${toDoWork[reversedIndex].date.minute} $m,  ${toDoWork[reversedIndex].date.day} ${month(toDoWork[reversedIndex].date).toString().substring(0, 3)} ${toDoWork[reversedIndex].date.year}',
-                                      style: const TextStyle(
-                                        fontFamily: 'mainFont',
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
+                                      title: Text(
+                                        toDoWork[reversedIndex].toDoText,
+                                        style: const TextStyle(
+                                          fontFamily: 'mainFont',
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
-                                    trailing: SizedBox(
-                                      height: 50,
-                                      width: 100,
-                                      child: Row(
-                                        children: [
-                                          IconButton(
-                                              onPressed: editToDo,
-                                              icon: const Icon(
-                                                Icons.edit,
-                                                color: Colors.deepPurple,
-                                              )),
-                                          IconButton(
-                                              onPressed: () {
-                                                _removeItem(
-                                                    toDoWork[reversedIndex].ID);
-                                                setState(() {
-                                                  toDoWork
-                                                      .removeAt(reversedIndex);
-                                                });
-                                              },
-                                              icon: const Icon(
-                                                Icons.delete,
-                                                color: Colors.deepPurple,
-                                              )),
-                                        ],
+                                      subtitle: Text(
+                                        '${toDoWork[reversedIndex].date.hour >= 12 || toDoWork[reversedIndex].date.hour == 0 ? (toDoWork[reversedIndex].date.hour - 12).abs() : toDoWork[reversedIndex].date.hour}:${toDoWork[reversedIndex].date.minute} $m,  ${toDoWork[reversedIndex].date.day} ${month(toDoWork[reversedIndex].date).toString().substring(0, 3)} ${toDoWork[reversedIndex].date.year}',
+                                        style: const TextStyle(
+                                          fontFamily: 'mainFont',
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      trailing: SizedBox(
+                                        height: 50,
+                                        width: 100,
+                                        child: Row(
+                                          children: [
+                                            IconButton(
+                                                onPressed: editToDo,
+                                                icon: const Icon(
+                                                  Icons.edit,
+                                                  color: Colors.deepPurple,
+                                                )),
+                                            IconButton(
+                                                onPressed: () {
+                                                  _removeItem(
+                                                      toDoWork[reversedIndex]
+                                                          .ID);
+                                                  setState(() {
+                                                    toDoWork.removeAt(
+                                                        reversedIndex);
+                                                  });
+                                                },
+                                                icon: const Icon(
+                                                  Icons.delete,
+                                                  color: Colors.deepPurple,
+                                                )),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
