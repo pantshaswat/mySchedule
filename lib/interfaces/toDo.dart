@@ -473,6 +473,14 @@ class _toDoPageState extends State<toDoPage> {
             TextButton(
               onPressed: () {
                 String id = uuid.v1();
+                if (_selectedDate.difference(DateTime.now()).inSeconds < 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please select a valid date'),
+                    ),
+                  );
+                  return;
+                }
                 if (editedToDo.isNotEmpty) {
                   //TODO date are now set to current date
                   //change them later on
