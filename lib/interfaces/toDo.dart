@@ -51,8 +51,8 @@ class _toDoPageState extends State<toDoPage> {
         toDoText: prefs.getStringList(key)![1],
         isChecked: convertToBoolean(prefs.getStringList(key)![2]),
         ID: key,
-        date: DateTime.now(),
-        // date: DateTime.parse(prefs.getStringList(key)![3]),
+        //date: DateTime.now(),
+        date: DateTime.parse(prefs.getStringList(key)![3]),
       );
       toDoWork.add(newItem);
       print(newItem.isChecked);
