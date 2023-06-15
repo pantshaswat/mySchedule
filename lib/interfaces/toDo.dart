@@ -72,7 +72,7 @@ class _toDoPageState extends State<toDoPage> {
     super.initState();
     // _removeAllItems();
     _getAllItems();
-    weekDay();
+    weekDay(DateTime.now());
     month(DateTime.now());
   }
 
@@ -82,30 +82,25 @@ class _toDoPageState extends State<toDoPage> {
     super.dispose();
   }
 
-  var weekDayName;
-  void weekDay() {
-    int day = DateTime.now().weekday;
+  weekDay(DateTime dateTime) {
+    var weekDayName;
+    int day = dateTime.weekday;
     if (day == 1) {
       weekDayName = 'Monday';
-    }
-    if (day == 2) {
+    } else if (day == 2) {
       weekDayName = 'Tuesday';
-    }
-    if (day == 3) {
+    } else if (day == 3) {
       weekDayName = 'Wednesday';
-    }
-    if (day == 4) {
+    } else if (day == 4) {
       weekDayName = 'Thursday';
-    }
-    if (day == 5) {
+    } else if (day == 5) {
       weekDayName = 'Friday';
-    }
-    if (day == 6) {
+    } else if (day == 6) {
       weekDayName = 'Saturday';
-    }
-    if (day == 7) {
+    } else if (day == 7) {
       weekDayName = 'Sunday';
     }
+    return weekDayName;
   }
 
   month(DateTime dateTime) {
@@ -164,7 +159,7 @@ class _toDoPageState extends State<toDoPage> {
                       color: Colors.white),
                 ),
                 Text(
-                  "$weekDayName ,${DateTime.now().day} ${month(DateTime.now())} ",
+                  "${weekDay(DateTime.now())} ,${DateTime.now().day} ${month(DateTime.now())} ",
                   style: const TextStyle(
                       fontFamily: 'mainFont',
                       color: Colors.white,
