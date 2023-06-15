@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myschedule/components/textfield.dart';
-import 'package:myschedule/components/utils.dart';
+import 'package:myschedule/utils/notification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import "package:uuid/uuid.dart";
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
@@ -104,7 +104,7 @@ class _toDoPageState extends State<toDoPage> {
   }
 
   month(DateTime dateTime) {
-    var monthName;
+    String monthName = '';
     int monthNum = dateTime.month;
 
     if (monthNum == 1) {
@@ -136,7 +136,7 @@ class _toDoPageState extends State<toDoPage> {
   }
 
 //Initialing a unique key to assign each to-do item
-  var uuid = Uuid();
+  var uuid = const Uuid();
   @override
   Widget build(BuildContext context) {
     var h = MediaQuery.of(context).size.height;
@@ -270,7 +270,7 @@ class _toDoPageState extends State<toDoPage> {
                                 m = 'PM';
                               }
                               return Container(
-                                margin: EdgeInsets.only(bottom: 7),
+                                margin: const EdgeInsets.only(bottom: 7),
                                 child: Opacity(
                                   opacity: toDoWork[reversedIndex].isChecked
                                       ? 0.5
@@ -287,6 +287,15 @@ class _toDoPageState extends State<toDoPage> {
                                       borderRadius: BorderRadius.circular(10.0),
                                     ),
                                     child: ListTile(
+                                      onTap: () {
+                                        NotificationService().showNotification(
+                                          id: 0,
+                                          title: 'Check your to-do list',
+                                          body:
+                                              'You have a to-do task to complete',
+                                          payLoad: 'item x',
+                                        );
+                                      },
                                       leading: Checkbox(
                                         activeColor: Colors.deepPurple,
                                         value:
@@ -302,11 +311,7 @@ class _toDoPageState extends State<toDoPage> {
                                             toDoWork[reversedIndex]
                                                 .date
                                                 .toString(),
-                                          ]
-                                              // toDoWork[reversedIndex].isChecked
-                                              //     ? 'false'
-                                              //     : 'true',
-                                              );
+                                          ]);
                                           setState(() {
                                             toDoWork[reversedIndex].isChecked =
                                                 !toDoWork[reversedIndex]
