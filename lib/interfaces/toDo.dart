@@ -354,6 +354,9 @@ class _toDoPageState extends State<toDoPage> {
                                         onChanged: (bool? value) {
                                           bool update = !toDoWork[reversedIndex]
                                               .isChecked;
+                                          if (update) {
+                                            deleteNotification(0);
+                                          }
                                           _setItems(
                                               toDoWork[reversedIndex].ID, [
                                             toDoWork[reversedIndex].ID,
