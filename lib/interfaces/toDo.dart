@@ -100,7 +100,7 @@ class _toDoPageState extends State<toDoPage> {
           .requestPermission();
     }
     await flutterLocalNotificationsPlugin.zonedSchedule(
-        0,
+        item.ID.hashCode,
         '${item.toDoText} is due today',
         '${item.date.hour >= 12 || item.date.hour == 0 ? (item.date.hour - 12).abs() : item.date.hour}:${item.date.minute} $m',
         tz.TZDateTime.now(tz.local).add(Duration(seconds: differenceInSeconds)),
@@ -122,7 +122,7 @@ class _toDoPageState extends State<toDoPage> {
   @override
   void initState() {
     super.initState();
-    // _removeAllItems();
+
     _getAllItems();
     weekDay(DateTime.now());
     month(DateTime.now());
@@ -340,6 +340,9 @@ class _toDoPageState extends State<toDoPage> {
                                     ),
                                     child: ListTile(
                                       onTap: () {
+                                        print(reversedIndex);
+                                        print(
+                                            "${toDoWork[reversedIndex].ID.hashCode}");
                                         NotificationService().showNotification(
                                           id: index,
                                           title: 'To-Do Task',
@@ -358,7 +361,10 @@ class _toDoPageState extends State<toDoPage> {
 
                                           if (update == true) {
                                             // Checkbox is checked, cancel the notification
-                                            deleteNotification(0);
+                                            deleteNotification(
+                                                toDoWork[reversedIndex]
+                                                    .ID
+                                                    .hashCode);
                                           } else {
                                             // Checkbox is unchecked, schedule the notification
                                             setRemainder(
@@ -409,14 +415,22 @@ class _toDoPageState extends State<toDoPage> {
                                                 )),
                                             IconButton(
                                                 onPressed: () {
-                                                  _removeItem(
-                                                      toDoWork[reversedIndex]
-                                                          .ID);
-                                                  setState(() {
-                                                    toDoWork.removeAt(
-                                                        reversedIndex);
-                                                  });
-                                                  deleteNotification(0);
+                                                  if (toDoWork.isNotEmpty) {
+                                                    deleteNotification(
+                                                        toDoWork[reversedIndex]
+                                                            .ID
+                                                            .hashCode);
+                                                    _removeItem(
+                                                        toDoWork[reversedIndex]
+                                                            .ID);
+                                                    setState(() {
+                                                      toDoWork.removeAt(
+                                                          reversedIndex);
+                                                    });
+                                                  } else {
+                                                    print(
+                                                        'The list is already empty.');
+                                                  }
                                                 },
                                                 icon: const Icon(
                                                   Icons.delete,
@@ -519,12 +533,14 @@ class _toDoPageState extends State<toDoPage> {
                       date: _selectedDate,
                     ),
                   );
+
                   ToDoItem newTodo = ToDoItem(
                     toDoText: editedToDo,
                     isChecked: false,
                     ID: id,
                     date: _selectedDate,
                   );
+
                   _setItems(id, [
                     newTodo.ID,
                     newTodo.toDoText,
