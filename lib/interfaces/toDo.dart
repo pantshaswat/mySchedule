@@ -53,16 +53,28 @@ class _toDoPageState extends State<toDoPage> {
     //which is then displayed on the screen
     prefs.getKeys().forEach((key) {
       print(prefs.getStringList(key)![3]);
-      ToDoItem newItem = ToDoItem(
-        toDoText: prefs.getStringList(key)![1],
-        isChecked: convertToBoolean(prefs.getStringList(key)![2]),
-        ID: key,
-        // date: DateTime.now(),
-        date: DateTime.parse(prefs.getStringList(key)![3]),
-      );
-      toDoWork.add(newItem);
-      print(newItem.isChecked);
-      setState(() {});
+      List<String> temp = prefs.getStringList(key)!;
+      if (temp.length >= 4) {
+        ToDoItem newItem = ToDoItem(
+            toDoText: temp[1],
+            isChecked: convertToBoolean(temp[2]),
+            ID: key,
+            date: DateTime.parse(temp[3]));
+
+        // ToDoItem newItem = ToDoItem(
+        //   toDoText: prefs.getStringList(key)![1],
+        //   isChecked: convertToBoolean(prefs.getStringList(key)![2]),
+        //   ID: key,
+        //   // date: DateTime.now(),
+        //   date: DateTime.parse(prefs.getStringList(key)![3]),
+        // );
+        toDoWork.add(newItem);
+        print(newItem.isChecked);
+        setState(() {});
+      } else {
+        // Handle the case when the list or its elements are not available
+        print('Invalid or incomplete list');
+      }
     });
   }
 
@@ -100,16 +112,18 @@ class _toDoPageState extends State<toDoPage> {
           .requestPermission();
     }
     await flutterLocalNotificationsPlugin.zonedSchedule(
-        item.ID.hashCode,
-        '${item.toDoText} is due today',
-        '${item.date.hour >= 12 || item.date.hour == 0 ? (item.date.hour - 12).abs() : item.date.hour}:${item.date.minute} $m',
-        tz.TZDateTime.now(tz.local).add(Duration(seconds: differenceInSeconds)),
-        const NotificationDetails(
-            android: AndroidNotificationDetails(
-                'your channel id', 'your channel name',
-                channelDescription: 'your channel description')),
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime);
+      item.ID.hashCode,
+      '${item.toDoText} is due today',
+      '${item.date.hour >= 12 || item.date.hour == 0 ? (item.date.hour - 12).abs() : item.date.hour}:${item.date.minute} $m',
+      tz.TZDateTime.now(tz.local).add(Duration(seconds: differenceInSeconds)),
+      const NotificationDetails(
+          android: AndroidNotificationDetails(
+              'your channel id', 'your channel name',
+              channelDescription: 'your channel description',
+              sound: RawResourceAndroidNotificationSound('tune'))),
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
   }
 
   Future<void> deleteNotification(int notificationId) async {
@@ -271,20 +285,33 @@ class _toDoPageState extends State<toDoPage> {
                                         TextButton(
                                           onPressed: () {
                                             if (editedToDo.isNotEmpty) {
-                                              //first removing the value at index
+                                              //get the key of required todo
+                                              String delKey =
+                                                  toDoWork[reversedIndex].ID;
+                                              // removing the value at index from list
                                               toDoWork.removeAt(reversedIndex);
+
+                                              //removing the value from shared preferences and notification
+                                              deleteNotification(
+                                                  delKey.hashCode);
+                                              _removeItem(delKey);
+
+                                              if (_selectedDate
+                                                      .difference(
+                                                          DateTime.now())
+                                                      .inSeconds <
+                                                  0) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        'Please select a valid date'),
+                                                  ),
+                                                );
+                                                return;
+                                              }
                                               //then inserting the new value at the same index
                                               String id = uuid.v1();
-                                              ToDoItem newTodo = ToDoItem(
-                                                  toDoText: editedToDo,
-                                                  isChecked: false,
-                                                  ID: id,
-                                                  date: DateTime.now());
-                                              _setItems(id, [
-                                                newTodo.ID,
-                                                newTodo.toDoText,
-                                                newTodo.isChecked.toString()
-                                              ]);
                                               toDoWork.insert(
                                                 reversedIndex,
                                                 ToDoItem(
@@ -294,6 +321,20 @@ class _toDoPageState extends State<toDoPage> {
                                                   date: _selectedDate,
                                                 ),
                                               );
+                                              ToDoItem newTodo = ToDoItem(
+                                                  toDoText: editedToDo,
+                                                  isChecked: false,
+                                                  ID: id,
+                                                  date: _selectedDate);
+                                              _setItems(id, [
+                                                newTodo.ID,
+                                                newTodo.toDoText,
+                                                newTodo.isChecked.toString(),
+                                                newTodo.date.toString(),
+                                              ]);
+                                              //setting the notification
+                                              setRemainder(newTodo);
+                                              setState(() {});
                                               print(toDoWork);
                                               Navigator.of(context)
                                                   .pop(); // Close the dialog
