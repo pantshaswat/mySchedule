@@ -11,7 +11,7 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 class toDoPage extends StatefulWidget {
-  const toDoPage({super.key});
+  const toDoPage({Key? key}) : super(key: key);
 
   @override
   State<toDoPage> createState() => _toDoPageState();
@@ -48,18 +48,21 @@ class _toDoPageState extends State<toDoPage> {
 
   Future<void> _getAllItems() async {
     final SharedPreferences prefs = await _prefs;
+    List<ToDoItem> loadedItems = [];
     //Gets all the keys from the shared preferences
     //and then adds them to the list of to-do items
     //which is then displayed on the screen
     prefs.getKeys().forEach((key) {
       print(prefs.getStringList(key)![3]);
+
       List<String> temp = prefs.getStringList(key)!;
-      if (temp.length >= 4) {
+      if (temp.length >= 5) {
         ToDoItem newItem = ToDoItem(
             toDoText: temp[1],
             isChecked: convertToBoolean(temp[2]),
             ID: key,
-            date: DateTime.parse(temp[3]));
+            date: DateTime.parse(temp[3]),
+            selectedEarlyReminder: temp[4]);
 
         // ToDoItem newItem = ToDoItem(
         //   toDoText: prefs.getStringList(key)![1],
@@ -68,13 +71,15 @@ class _toDoPageState extends State<toDoPage> {
         //   // date: DateTime.now(),
         //   date: DateTime.parse(prefs.getStringList(key)![3]),
         // );
-        toDoWork.add(newItem);
+        loadedItems.add(newItem);
         print(newItem.isChecked);
-        setState(() {});
       } else {
         // Handle the case when the list or its elements are not available
         print('Invalid or incomplete list');
       }
+    });
+    setState(() {
+      toDoWork = loadedItems;
     });
   }
 
@@ -87,6 +92,24 @@ class _toDoPageState extends State<toDoPage> {
   //Initializing date Time selector
   DateTime _selectedDate = DateTime.now();
 
+  earlyReminderSetter(ToDoItem item) {
+    if (item.selectedEarlyReminder == 'at time of event') {
+      return item.date;
+    }
+    if (item.selectedEarlyReminder == '5 minutes early') {
+      return item.date.subtract(const Duration(minutes: 5));
+    }
+    if (item.selectedEarlyReminder == '15 minutes early') {
+      return item.date.subtract(const Duration(minutes: 15));
+    }
+    if (item.selectedEarlyReminder == '30 minutes early') {
+      return item.date.subtract(const Duration(minutes: 30));
+    }
+    if (item.selectedEarlyReminder == '1 hour early') {
+      return item.date.subtract(const Duration(minutes: 60));
+    }
+  }
+
   Future<void> setRemainder(ToDoItem item) async {
     //Balla Talla kam garne vako cha koi chune haina yo code lai
     //AM/PM setter
@@ -96,6 +119,9 @@ class _toDoPageState extends State<toDoPage> {
     } else {
       m = 'PM';
     }
+
+    print(item.date);
+    item.date = earlyReminderSetter(item);
     print(item.date);
     print(DateTime.now());
     Duration difference = item.date.difference(DateTime.now());
@@ -260,6 +286,7 @@ class _toDoPageState extends State<toDoPage> {
                             itemCount: toDoWork.length,
                             itemBuilder: ((context, index) {
                               int reversedIndex = toDoWork.length - 1 - index;
+
                               //function to edit the list
                               void editToDo() {
                                 showDialog(
@@ -319,18 +346,25 @@ class _toDoPageState extends State<toDoPage> {
                                                   isChecked: false,
                                                   ID: id,
                                                   date: _selectedDate,
+                                                  selectedEarlyReminder:
+                                                      toDoWork[reversedIndex]
+                                                          .selectedEarlyReminder,
                                                 ),
                                               );
                                               ToDoItem newTodo = ToDoItem(
                                                   toDoText: editedToDo,
                                                   isChecked: false,
                                                   ID: id,
-                                                  date: _selectedDate);
+                                                  date: _selectedDate,
+                                                  selectedEarlyReminder:
+                                                      toDoWork[reversedIndex]
+                                                          .selectedEarlyReminder);
                                               _setItems(id, [
                                                 newTodo.ID,
                                                 newTodo.toDoText,
                                                 newTodo.isChecked.toString(),
                                                 newTodo.date.toString(),
+                                                newTodo.selectedEarlyReminder
                                               ]);
                                               //setting the notification
                                               setRemainder(newTodo);
@@ -381,9 +415,7 @@ class _toDoPageState extends State<toDoPage> {
                                     ),
                                     child: ListTile(
                                       onTap: () {
-                                        print(reversedIndex);
-                                        print(
-                                            "${toDoWork[reversedIndex].ID.hashCode}");
+                                        print(toDoWork.length);
                                         NotificationService().showNotification(
                                           id: index,
                                           title: 'To-Do Task',
@@ -419,6 +451,8 @@ class _toDoPageState extends State<toDoPage> {
                                             toDoWork[reversedIndex]
                                                 .date
                                                 .toString(),
+                                            toDoWork[reversedIndex]
+                                                .selectedEarlyReminder,
                                           ]);
                                           setState(() {
                                             toDoWork[reversedIndex].isChecked =
@@ -528,85 +562,149 @@ class _toDoPageState extends State<toDoPage> {
     setState(() {
       print(dateTime);
       _selectedDate = dateTime ?? DateTime.now();
+      String m;
+      if (_selectedDate.hour < 12) {
+        m = 'AM';
+      } else {
+        m = 'PM';
+      }
+      _textDateTimeController.text =
+          '${_selectedDate.hour >= 12 || _selectedDate.hour == 0 ? (_selectedDate.hour - 12).abs() : _selectedDate.hour}:${_selectedDate.minute} $m,  ${_selectedDate.day} ${month(_selectedDate).toString().substring(0, 3)} ${_selectedDate.year}';
+      ;
     });
   }
 
+  TextEditingController _textDateTimeController = TextEditingController();
+  List<String> earlyReminder = [
+    'at time of event',
+    '5 minutes early',
+    '15 minutes early',
+    '30 minutes early',
+    '1 hour early',
+  ];
+
 //function to add new list
   void addToDo() {
+    String? selectedEarlyReminder;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         String editedToDo = '';
-        return AlertDialog(
-          title: const Text('Add ToDo'),
-          content: TextField(
-            onChanged: (value) {
-              editedToDo = value;
-            },
-            decoration: InputDecoration(
-                labelText: 'Add Here',
-                suffixIcon: SuffixIconButton1(
-                    icon: Image.asset("assets/images/calendar (2).png"),
-                    onTap: () {
-                      dateTimePicker();
-                    })),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                String id = uuid.v1();
-                if (_selectedDate.difference(DateTime.now()).inSeconds < 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please select a valid date'),
-                    ),
-                  );
-                  return;
-                }
-                if (editedToDo.isNotEmpty) {
-                  //TODO date are now set to current date
-                  //change them later on
-                  toDoWork.add(
-                    ToDoItem(
+        _textDateTimeController.text = '';
+
+        return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+          return AlertDialog(
+            scrollable: true,
+            title: const Text('Add ToDo'),
+            content: Column(
+              children: [
+                TextField(
+                  onChanged: (value) {
+                    editedToDo = value;
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Add Here',
+                  ),
+                ),
+                TextField(
+                  controller: _textDateTimeController,
+                  decoration: InputDecoration(
+                      labelText: 'Select Date and Time',
+                      suffixIcon: SuffixIconButton1(
+                          icon: Image.asset("assets/images/calendar (2).png"),
+                          onTap: () {
+                            dateTimePicker();
+                          })),
+                ),
+                DropdownButton<String>(
+                  borderRadius: BorderRadius.circular(20),
+                  isExpanded: true,
+                  hint: Text('Remind'),
+                  underline: Container(),
+                  value: selectedEarlyReminder,
+                  items: earlyReminder.map((option) {
+                    return DropdownMenuItem<String>(
+                      value: option,
+                      child: Text(option),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedEarlyReminder = value!;
+                    });
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  String id = uuid.v1();
+                  if (_selectedDate.difference(DateTime.now()).inSeconds < 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please select a valid date'),
+                      ),
+                    );
+                    return;
+                  } else if (selectedEarlyReminder == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please choose remind time'),
+                      ),
+                    );
+                  } else if (editedToDo.isNotEmpty) {
+                    //TODO date are now set to current date
+                    //change them later on
+
+                    toDoWork.add(
+                      ToDoItem(
+                        toDoText: editedToDo,
+                        isChecked: false,
+                        ID: id,
+                        date: _selectedDate,
+                        selectedEarlyReminder: selectedEarlyReminder!,
+                      ),
+                    );
+
+                    ToDoItem newTodo = ToDoItem(
                       toDoText: editedToDo,
                       isChecked: false,
                       ID: id,
                       date: _selectedDate,
-                    ),
-                  );
+                      selectedEarlyReminder: selectedEarlyReminder!,
+                    );
 
-                  ToDoItem newTodo = ToDoItem(
-                    toDoText: editedToDo,
-                    isChecked: false,
-                    ID: id,
-                    date: _selectedDate,
-                  );
-
-                  _setItems(id, [
-                    newTodo.ID,
-                    newTodo.toDoText,
-                    newTodo.isChecked.toString(),
-                    newTodo.date.toString(),
-                  ]);
-                  setRemainder(newTodo);
-                  setState(() {});
-                  Navigator.of(context).pop(); // Close the dialog
-                }
-              },
-              child: const Text(
-                'Add',
-                style: TextStyle(color: Colors.black),
+                    _setItems(id, [
+                      newTodo.ID,
+                      newTodo.toDoText,
+                      newTodo.isChecked.toString(),
+                      newTodo.date.toString(),
+                      newTodo.selectedEarlyReminder,
+                    ]);
+                    setRemainder(newTodo);
+                    setState(() {});
+                    _getAllItems();
+                    print(toDoWork);
+                    Navigator.of(context).pop(); // Close the dialog
+                  }
+                },
+                child: const Text(
+                  'Add',
+                  style: TextStyle(color: Colors.black),
+                ),
               ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child:
-                  const Text('Cancel', style: TextStyle(color: Colors.black)),
-            ),
-          ],
-        );
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child:
+                    const Text('Cancel', style: TextStyle(color: Colors.black)),
+              ),
+            ],
+          );
+        });
       },
     );
   }
@@ -628,9 +726,11 @@ class ToDoItem {
   bool isChecked;
   String ID;
   DateTime date;
+  String selectedEarlyReminder;
   ToDoItem(
       {required this.toDoText,
       required this.isChecked,
       required this.ID,
-      required this.date});
+      required this.date,
+      required this.selectedEarlyReminder});
 }
