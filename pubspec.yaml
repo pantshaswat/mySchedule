@@ -38,6 +38,8 @@ dependencies:
   permission_handler: ^10.3.0
   notification_permissions: ^0.6.1
   workmanager: ^0.5.1
+  firebase_auth: ^4.7.1
+  firebase_core: ^2.15.0
 
 dev_dependencies:
   flutter_test:
